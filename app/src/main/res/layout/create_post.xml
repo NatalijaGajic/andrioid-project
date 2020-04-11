@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".CreatePost"
+        android:padding="20dp">
+
+        <ImageView
+            android:id="@+id/select_image"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:cropToPadding="false"
+            android:scaleType="centerCrop"
+            android:src="@drawable/ic_apple_camera"
+            android:layout_marginTop="50dp"
+            />
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/create_book_title_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="30dp"
+            app:errorEnabled="true">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/create_book_title"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                app:boxStrokeColor="@color/blue"
+                android:inputType="textMultiLine"
+                android:hint="Title"/>
+        </com.google.android.material.textfield.TextInputLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/create_price_layout"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                app:errorEnabled="true"
+                >
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/create_price"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    app:boxStrokeColor="@color/blue"
+                    android:hint="Price"
+                    android:inputType="number"
+                    />
+            </com.google.android.material.textfield.TextInputLayout>
+            <Spinner
+                android:layout_marginLeft="40dp"
+                android:id="@+id/spinner_valute"
+                android:layout_width="100dp"
+                android:layout_height="wrap_content"
+                />
+        </LinearLayout>
+        <TextView
+            android:labelFor="@+id/create_description"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="10dp"
+            android:text="Description:"/>
+        <EditText
+            android:id="@+id/create_description"
+            android:padding="15dp"
+            android:background="@drawable/edit_text_style"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:minHeight="150dp"
+            android:maxHeight="150dp"
+            android:gravity="top"
+            android:inputType="textCapSentences|textMultiLine"
+            android:hint="Enter text"/>
+        <Button
+            android:id="@+id/create_button"
+            android:layout_marginTop="30dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginBottom="40dp"
+            android:text="Create post"
+            android:background="@drawable/button_design"/>
+
+    </LinearLayout>
+</ScrollView>

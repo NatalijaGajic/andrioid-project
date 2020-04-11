@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">BookOfBooks</string>
+    <string name="sign_up"><u>No account? Sign up</u></string>
+    <string name="open">open</string>
+    <string name="close">close</string>
+    <string-array name="valutes">
+        <item>€</item>
+        <item>$</item>
+        <item>£</item>
+    </string-array>
+</resources>

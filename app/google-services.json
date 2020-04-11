@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "305862102113",
+    "firebase_url": "https://bookofbooks-39ded.firebaseio.com",
+    "project_id": "bookofbooks-39ded",
+    "storage_bucket": "bookofbooks-39ded.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:305862102113:android:76f7b113c6678ad179ae20",
+        "android_client_info": {
+          "package_name": "com.example.bookofbooks"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "305862102113-t280mhi6h7lnllliu78ms6b1hn4omrdj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.bookofbooks",
+            "certificate_hash": "3259fd74bb0e1273bfea134db611afecba3cb538"
+          }
+        },
+        {
+          "client_id": "305862102113-qb0jcr9mgeso42dhiavv3qmd7hdv64pn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCqLEfZGRZ1ckBxoQ9vF8b55W_vLGNn-uk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "305862102113-qb0jcr9mgeso42dhiavv3qmd7hdv64pn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

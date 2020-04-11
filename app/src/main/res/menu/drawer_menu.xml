@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:title="General">
+        <menu>
+            <item
+                android:id="@+id/home"
+                android:icon="@drawable/ic_home_black_24dp"
+                android:title="Home" />
+            <item
+                android:id="@+id/make_post"
+                android:icon="@drawable/ic_border_color_black_24dp"
+                android:title="Make a post" />
+            <item
+                android:id="@+id/my_post"
+                android:icon="@drawable/ic_library_books_black_24dp"
+                android:title="Posts" />
+
+        </menu>
+    </item>
+    <item
+        android:id="@+id/log_out"
+        android:icon="@drawable/ic_person_outline_black_24dp"
+        android:title="Log out" />
+</menu>
