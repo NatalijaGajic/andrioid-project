@@ -1,4 +1,4 @@
-package models;
+package com.example.bookofbooks.Models;
 
 public class User {
 

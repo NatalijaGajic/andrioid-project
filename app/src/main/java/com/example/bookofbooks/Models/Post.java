@@ -1,15 +1,15 @@
-package models;
+package com.example.bookofbooks.Models;
+
+
+import java.util.Date;
 
 public class Post {
     private String title, description, valute, imageUri, userID;
     private Integer price;
+    private Date date;
 
     public Post(){
 
-    }
-
-    public String getUserID() {
-        return userID;
     }
 
     public void setUserID(String userID) {
@@ -22,6 +22,19 @@ public class Post {
         this.valute = valute;
         this.imageUri = imageUri;
         this.price = price;
+        this.date = new Date(System.currentTimeMillis());
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
+
+    public String getUserID() {
+        return userID;
     }
 
     public String getTitle() {
