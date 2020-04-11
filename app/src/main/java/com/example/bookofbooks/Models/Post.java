@@ -4,7 +4,7 @@ package com.example.bookofbooks.Models;
 import java.util.Date;
 
 public class Post {
-    private String title, description, valute, imageUri, userID;
+    private String title, description, valute, imageUri, userID, userName, country;
     private Integer price;
     private Date date;
 
@@ -33,8 +33,24 @@ public class Post {
         this.date = date;
     }
 
+    public String getCountry() {
+        return country;
+    }
+
+    public void setCountry(String country) {
+        this.country = country;
+    }
+
     public String getUserID() {
         return userID;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getTitle() {

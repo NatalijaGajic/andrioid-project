@@ -26,12 +26,16 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import com.example.bookofbooks.Models.Post;
+import com.squareup.picasso.Picasso;
 
 public class CreatePost extends AppCompatActivity {
 
@@ -77,6 +81,8 @@ public class CreatePost extends AppCompatActivity {
                 if(validateForm()) {
                     valute = valuteSpinner.getSelectedItem().toString();
                     Log.d("CREATE POST CLICKED", "validated");
+                    //TODO obezbedi da se ne dodaje 20 puta kada klikne na dugme
+                    //Firebase Storage - Upload and Retrieve Images - Part 3 - UPLOAD IMAGE - Android Studio Tutoria 20. minut
                     uploadPost();
                     startActivity(new Intent(CreatePost.this, HomePage.class));
                     finish();
@@ -102,7 +108,7 @@ public class CreatePost extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==galleryPick && resultCode==RESULT_OK && data!=null){
             imageUri = data.getData();
-            imageView.setImageURI(imageUri);
+            Picasso.get().load(imageUri).fit().centerCrop().into(imageView);
         }
     }
 
@@ -187,6 +193,19 @@ public class CreatePost extends AppCompatActivity {
     private void savePostToDB(String id, String downloadUlr) {
         Post post = new Post(downloadUlr,title, priceValue, valute, descriptionString);
         post.setUserID(id);
+       /* final StringBuilder username = new StringBuilder();
+        final StringBuilder country = new StringBuilder();
+        DocumentReference docRef = mStore.collection("users").document(id);
+        docRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
+                username.append(documentSnapshot.getString("firstName")+" ");
+                username.append(documentSnapshot.getString("lastName"));
+                country.append(documentSnapshot.getString("country"));
+            }
+        });
+        post.setCountry(country.toString());
+        post.setUserName(username.toString());*/
         mStore.collection("posts")
                 .add(post)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {

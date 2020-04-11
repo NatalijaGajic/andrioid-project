@@ -14,11 +14,13 @@
 
         <ImageView
             android:id="@+id/select_image"
-            android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:cropToPadding="false"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_apple_camera"
+            android:scaleX=".9"
+            android:scaleY=".9"
             android:layout_marginTop="50dp"
             />
 

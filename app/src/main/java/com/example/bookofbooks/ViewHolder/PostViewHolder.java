@@ -12,7 +12,7 @@ import com.example.bookofbooks.R;
 
 public class PostViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
-    public TextView title, description, country, price;
+    public TextView title, date, country, price;
     public ImageView image;
     public PostClickListener listener;
 
@@ -21,7 +21,7 @@ public class PostViewHolder extends RecyclerView.ViewHolder implements View.OnCl
 
         image = (ImageView)itemView.findViewById(R.id.card_imageView);
         title = (TextView) itemView.findViewById(R.id.card_textViewTitle);
-        description = (TextView) itemView.findViewById(R.id.card_textViewShortDesc);
+        date = (TextView) itemView.findViewById(R.id.card_textViewDate);
         country = (TextView) itemView.findViewById(R.id.textViewCountry);
         price = (TextView) itemView.findViewById(R.id.textViewPrice);
 
