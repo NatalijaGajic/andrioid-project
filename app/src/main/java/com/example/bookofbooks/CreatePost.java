@@ -18,6 +18,7 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.bookofbooks.Models.User;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -36,6 +37,8 @@ import com.google.firebase.storage.UploadTask;
 
 import com.example.bookofbooks.Models.Post;
 import com.squareup.picasso.Picasso;
+
+import java.io.StringReader;
 
 public class CreatePost extends AppCompatActivity {
 
@@ -190,36 +193,32 @@ public class CreatePost extends AppCompatActivity {
         }
     }
 
-    private void savePostToDB(String id, String downloadUlr) {
-        Post post = new Post(downloadUlr,title, priceValue, valute, descriptionString);
-        post.setUserID(id);
-       /* final StringBuilder username = new StringBuilder();
-        final StringBuilder country = new StringBuilder();
+    private void savePostToDB(final String id, final String downloadUlr) {
+
         DocumentReference docRef = mStore.collection("users").document(id);
-        docRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException e) {
-                username.append(documentSnapshot.getString("firstName")+" ");
-                username.append(documentSnapshot.getString("lastName"));
-                country.append(documentSnapshot.getString("country"));
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                  @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                     User user = documentSnapshot.toObject(User.class);
+                     Post post = new Post(downloadUlr,title, priceValue, valute, descriptionString);
+                     post.setUser(user);
+                     post.setUserID(id);
+                     mStore.collection("posts")
+                              .add(post)
+                              .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                                  @Override
+                                  public void onSuccess(DocumentReference documentReference) {
+                                      Log.d("", "DocumentSnapshot written with ID: " + documentReference.getId());
+                                  }
+                              })
+                              .addOnFailureListener(new OnFailureListener() {
+                                  @Override
+                                  public void onFailure(@NonNull Exception e) {
+                                      Log.w("", "Error adding document", e);
+                                  }
+                              });
             }
         });
-        post.setCountry(country.toString());
-        post.setUserName(username.toString());*/
-        mStore.collection("posts")
-                .add(post)
-                .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                    @Override
-                    public void onSuccess(DocumentReference documentReference) {
-                        Log.d("", "DocumentSnapshot written with ID: " + documentReference.getId());
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Log.w("", "Error adding document", e);
-                    }
-                });
     }
 
 }

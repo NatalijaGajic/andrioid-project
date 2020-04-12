@@ -4,16 +4,14 @@ package com.example.bookofbooks.Models;
 import java.util.Date;
 
 public class Post {
-    private String title, description, valute, imageUri, userID, userName, country;
+    private String title, description, valute, imageUri, userID;
+    private User user;
     private Integer price;
+
     private Date date;
 
     public Post(){
 
-    }
-
-    public void setUserID(String userID) {
-        this.userID = userID;
     }
 
     public Post(String imageUri, String title, Integer price, String valute, String description) {
@@ -25,6 +23,23 @@ public class Post {
         this.date = new Date(System.currentTimeMillis());
     }
 
+    public String getUserID() {
+        return userID;
+    }
+
+    public void setUserID(String userID) {
+        this.userID = userID;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+
     public Date getDate() {
         return date;
     }
@@ -33,25 +48,6 @@ public class Post {
         this.date = date;
     }
 
-    public String getCountry() {
-        return country;
-    }
-
-    public void setCountry(String country) {
-        this.country = country;
-    }
-
-    public String getUserID() {
-        return userID;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
 
     public String getTitle() {
         return title;

@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookofbooks.Models.Post;
+import com.example.bookofbooks.Utility.TimestampConverter;
 import com.example.bookofbooks.ViewHolder.PostViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
@@ -77,37 +78,11 @@ public class HomePosts extends Fragment {
             protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull Post model) {
                 //holder je view, layout, setuju se vrednosti za TextView-ove
                 holder.title.setText(model.getTitle());
-                holder.country.setText("serbia");
-                String[] dateParts = model.getDate().toString().split(" ");
-                StringBuilder sb = new StringBuilder();
-                for(int i=1; i<dateParts.length;i++){
-
-                    if(i==4 && i==5 && i==dateParts.length-1){
-                        Log.d("",dateParts[i].toString());
-                        continue;
-                    }
-                    if(i==3) {
-                        String[] timeParts = dateParts[i].split(":");
-                        sb.append(timeParts[0]+":");
-                        sb.append(timeParts[1]);
-                    } else{
-                        sb.append(dateParts[i]);
-                    }
-                    sb.append(" ");
-
-                }
-                sb.delete(12,22);
-                String year = sb.substring(12,17);
-                sb.delete(12,29);
-                String[] strings = sb.toString().split(" ");
-                sb.delete(0,sb.capacity());
-                sb.append(strings[0]+" ");
-                sb.append(strings[1]+" ");
-                sb.append(year+" ");
-                sb.append(strings[2]);
+                holder.country.setText(model.getUser().getCountry());
+                String date = TimestampConverter.timestampToDate(model.getDate().toString());
                 //holder.date.setText(model.getDate().toString());
-                holder.date.setText(sb.toString());
-                holder.price.setText(model.getPrice()+"");
+                holder.date.setText(date);
+                holder.price.setText(model.getPrice()+" "+model.getValute());
                 Picasso.get().load(model.getImageUri()).fit().centerCrop().into(holder.image);
             }
         };
