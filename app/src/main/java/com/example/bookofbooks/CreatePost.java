@@ -3,11 +3,19 @@ package com.example.bookofbooks;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.webkit.MimeTypeMap;
@@ -48,13 +56,16 @@ public class CreatePost extends AppCompatActivity {
     Spinner valuteSpinner;
     String title, descriptionString, price, valute;
     Integer priceValue;
+    Button takePicture, choosePicture;
     ImageView imageView;
-    private static final int galleryPick =1;
     Uri imageUri;
     StorageReference fileReference;
     StorageReference mStorageRef;
     FirebaseFirestore mStore;
     FirebaseAuth mAuth;
+    private static final int GALLERY_PICK_CODE = 1;
+    private static final int PERMISSION_CODE = 1000;
+    private static final int OPEN_CAMERA_CODE = 1000;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,7 +81,32 @@ public class CreatePost extends AppCompatActivity {
         valuteSpinner.setAdapter(adapter);
 
         imageView = findViewById(R.id.select_image);
-        imageView.setOnClickListener(new View.OnClickListener() {
+        takePicture = (Button) findViewById(R.id.button_take_picture);
+        choosePicture = (Button) findViewById(R.id.button_choose_picture);
+
+        takePicture.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+                    if(ContextCompat.checkSelfPermission(CreatePost.this, Manifest.permission.CAMERA)==
+                            PackageManager.PERMISSION_DENIED ||
+                            ContextCompat.checkSelfPermission(CreatePost.this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ==
+                            PackageManager.PERMISSION_DENIED){
+                        //permission denied
+                        String[] permision  = {Manifest.permission.CAMERA,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE};
+                        ActivityCompat.requestPermissions(CreatePost.this, permision, PERMISSION_CODE);
+                    }
+                } else {
+                    openCamera();
+                }
+                openCamera();
+            }
+        });
+
+
+
+        choosePicture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openGallery();
@@ -99,18 +135,42 @@ public class CreatePost extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode){
+            case PERMISSION_CODE:
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    openCamera();
+                } else {
+                    Toast.makeText(this,"Permission denied", Toast.LENGTH_SHORT).show();
+                }
+                break;
+        }
+    }
+
+    private void openCamera() {
+        ContentValues values = new ContentValues();
+        values.put(MediaStore.Images.Media.TITLE, "New picture");
+        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        startActivityForResult(cameraIntent, OPEN_CAMERA_CODE);
+    }
+
     private void openGallery() {
         Intent galleryIntent = new Intent();
         galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
         galleryIntent.setType("image/*");
-        startActivityForResult(galleryIntent,galleryPick);
+        startActivityForResult(galleryIntent, GALLERY_PICK_CODE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if(requestCode==galleryPick && resultCode==RESULT_OK && data!=null){
+        if(requestCode==GALLERY_PICK_CODE && resultCode==RESULT_OK && data!=null){
             imageUri = data.getData();
+            Picasso.get().load(imageUri).fit().centerCrop().into(imageView);
+        } else if(requestCode==OPEN_CAMERA_CODE && resultCode==RESULT_OK){
             Picasso.get().load(imageUri).fit().centerCrop().into(imageView);
         }
     }
@@ -193,7 +253,8 @@ public class CreatePost extends AppCompatActivity {
         }
     }
 
-    private void savePostToDB(final String id, final String downloadUlr) {
+    private void savePostToDB(final
+                              String id, final String downloadUlr) {
 
         DocumentReference docRef = mStore.collection("users").document(id);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {

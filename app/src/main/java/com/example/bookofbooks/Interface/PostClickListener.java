@@ -2,7 +2,9 @@ package com.example.bookofbooks.Interface;
 
 import android.view.View;
 
+import com.google.firebase.firestore.DocumentSnapshot;
+
 public interface PostClickListener {
 
-    void onClick(View view, int position, boolean isLongClick);
+    void onItemClick(DocumentSnapshot documentSnapshot, int position);
 }

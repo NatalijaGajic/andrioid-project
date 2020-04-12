@@ -4,7 +4,7 @@ package com.example.bookofbooks.Models;
 import java.util.Date;
 
 public class Post {
-    private String title, description, valute, imageUri, userID;
+    private String title, description, valute, imageUri, userID, postID;
     private User user;
     private Integer price;
 
@@ -39,6 +39,13 @@ public class Post {
         this.user = user;
     }
 
+    public String getPostID() {
+        return postID;
+    }
+
+    public void setPostID(String postID) {
+        this.postID = postID;
+    }
 
     public Date getDate() {
         return date;

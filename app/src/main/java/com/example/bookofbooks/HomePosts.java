@@ -1,37 +1,46 @@
 package com.example.bookofbooks;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.bookofbooks.Adapters.FirestoreAdapter;
+import com.example.bookofbooks.Interface.PostClickListener;
 import com.example.bookofbooks.Models.Post;
 import com.example.bookofbooks.Utility.TimestampConverter;
-import com.example.bookofbooks.ViewHolder.PostViewHolder;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
+import com.firebase.ui.firestore.SnapshotParser;
+import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
+import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.firebase.ui.firestore.paging.LoadingState;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.squareup.picasso.Picasso;
 
 import java.util.Date;
 
-public class HomePosts extends Fragment {
+public class HomePosts extends Fragment implements PostClickListener {
 
     private RecyclerView firestoreList;
     private onFragmentButtonSelected listener;
 
     FirebaseFirestore firebaseFirestore;
-    FirestoreRecyclerAdapter adapter;
+    FirestoreAdapter adapter;
 
     @Nullable
     @Override
@@ -62,30 +71,24 @@ public class HomePosts extends Fragment {
         //Query
         Query query = firebaseFirestore.collection("posts").orderBy("date", Query.Direction.DESCENDING);
         //RecyclerOption
-        FirestoreRecyclerOptions<Post> options = new FirestoreRecyclerOptions.Builder<Post>()
-                .setQuery(query, Post.class)
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setInitialLoadSizeHint(1)
+                .setPageSize(1)
+                .build();
+        FirestorePagingOptions<Post> options = new FirestorePagingOptions.Builder<Post>()
+                .setLifecycleOwner(this)
+                .setQuery(query, config, new SnapshotParser<Post>() {
+                    @NonNull
+                    @Override
+                    public Post parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                        Post post = snapshot.toObject(Post.class);
+                        post.setPostID(snapshot.getId());
+                        return post;
+                    }
+                })
                 .build();
 
-        adapter = new FirestoreRecyclerAdapter<Post, PostViewHolder>(options) {
-            @NonNull
-            @Override
-            public PostViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.card_layout_book, parent, false);
-                return new PostViewHolder(view);
-            }
-
-            @Override
-            protected void onBindViewHolder(@NonNull PostViewHolder holder, int position, @NonNull Post model) {
-                //holder je view, layout, setuju se vrednosti za TextView-ove
-                holder.title.setText(model.getTitle());
-                holder.country.setText(model.getUser().getCountry());
-                String date = TimestampConverter.timestampToDate(model.getDate().toString());
-                //holder.date.setText(model.getDate().toString());
-                holder.date.setText(date);
-                holder.price.setText(model.getPrice()+" "+model.getValute());
-                Picasso.get().load(model.getImageUri()).fit().centerCrop().into(holder.image);
-            }
-        };
+        adapter = new FirestoreAdapter(options, this);
 
         firestoreList.setHasFixedSize(true);
         firestoreList.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -99,9 +102,6 @@ public class HomePosts extends Fragment {
         if (context instanceof onFragmentButtonSelected) {
             listener = (onFragmentButtonSelected) context;
         }
-
-
-
     }
 
     @Override
@@ -114,6 +114,18 @@ public class HomePosts extends Fragment {
     public void onStop() {
         super.onStop();
         adapter.stopListening();
+    }
+
+    @Override
+    public void onItemClick(DocumentSnapshot documentSnapshot, int position) {
+        String id = documentSnapshot.getId();
+        Log.d("ON ITEM CLICK", "clicked item "+ id);
+        Toast.makeText(getActivity().getApplicationContext(), "clicked item", Toast.LENGTH_SHORT).show();
+        Intent intent = new Intent(getContext(), PostDetails.class);
+        intent.putExtra("postID", id);
+        startActivity(intent);
+
+        //radimo nesto na klik
     }
 
     public interface onFragmentButtonSelected {

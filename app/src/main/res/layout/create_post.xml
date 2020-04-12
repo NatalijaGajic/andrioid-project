@@ -19,10 +19,29 @@
             android:cropToPadding="false"
             android:scaleType="centerCrop"
             android:src="@drawable/ic_apple_camera"
-            android:scaleX=".9"
-            android:scaleY=".9"
             android:layout_marginTop="50dp"
+            android:layout_marginBottom="20dp"
             />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <Button
+                android:id="@+id/button_take_picture"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/button_design"
+                android:text="Take a picture"/>
+            <Button
+                android:id="@+id/button_choose_picture"
+                android:layout_marginLeft="20dp"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/button_design"
+                android:text="Choose a picture"/>
+        </LinearLayout>
 
 
         <com.google.android.material.textfield.TextInputLayout
