@@ -27,6 +27,8 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.bookofbooks.Models.User;
+import com.example.bookofbooks.Utility.TimestampConverter;
+import com.example.bookofbooks.Utility.ValuteGetter;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -47,14 +49,15 @@ import com.example.bookofbooks.Models.Post;
 import com.squareup.picasso.Picasso;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 
 public class CreatePost extends AppCompatActivity {
 
-    Button createPost;
+    Button createPost, editPost;
     TextInputLayout titleLayout, priceLayout;
     EditText description;
     Spinner valuteSpinner;
-    String title, descriptionString, price, valute;
+    String title, descriptionString, price, valute, postID;
     Integer priceValue;
     Button takePicture, choosePicture;
     ImageView imageView;
@@ -63,6 +66,7 @@ public class CreatePost extends AppCompatActivity {
     StorageReference mStorageRef;
     FirebaseFirestore mStore;
     FirebaseAuth mAuth;
+    Post displayedPost;
     private static final int GALLERY_PICK_CODE = 1;
     private static final int PERMISSION_CODE = 1000;
     private static final int OPEN_CAMERA_CODE = 1000;
@@ -83,6 +87,50 @@ public class CreatePost extends AppCompatActivity {
         imageView = findViewById(R.id.select_image);
         takePicture = (Button) findViewById(R.id.button_take_picture);
         choosePicture = (Button) findViewById(R.id.button_choose_picture);
+        titleLayout = findViewById(R.id.create_book_title_layout);
+        priceLayout = findViewById(R.id.create_price_layout);
+        description = findViewById(R.id.create_description);
+
+
+        if(getIntent().getStringExtra("postID").isEmpty()){
+            //create post
+            createPost = findViewById(R.id.create_button);
+            createPost.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(validateForm()) {
+                        valute = valuteSpinner.getSelectedItem().toString();
+                        Log.d("CREATE POST CLICKED", "validated");
+                        //TODO obezbedi da se ne dodaje 20 puta kada klikne na dugme
+                        //Firebase Storage - Upload and Retrieve Images - Part 3 - UPLOAD IMAGE - Android Studio Tutoria 20. minut
+                        uploadPost("create");
+                        startActivity(new Intent(CreatePost.this, HomePage.class));
+                        finish();
+                        Toast.makeText(getApplicationContext(),"Post created", Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+            });
+        } else {
+            //edit post
+            postID = getIntent().getStringExtra("postID");
+            getPostDetails(postID);
+            editPost = findViewById(R.id.create_button);
+            editPost.setText("UPDATE POST");
+            editPost.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (validateForm()) {
+                        valute = valuteSpinner.getSelectedItem().toString();
+                        Toast.makeText(getApplicationContext(), "Post updated", Toast.LENGTH_SHORT).show();
+                        uploadPost("edit");
+                        /*startActivity(new Intent(CreatePost.this, UserPosts.class));
+                        finish();*/
+
+                    }
+                }
+            });
+        }
 
         takePicture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -113,26 +161,13 @@ public class CreatePost extends AppCompatActivity {
             }
         });
 
-        createPost = findViewById(R.id.create_button);
-        createPost.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(validateForm()) {
-                    valute = valuteSpinner.getSelectedItem().toString();
-                    Log.d("CREATE POST CLICKED", "validated");
-                    //TODO obezbedi da se ne dodaje 20 puta kada klikne na dugme
-                    //Firebase Storage - Upload and Retrieve Images - Part 3 - UPLOAD IMAGE - Android Studio Tutoria 20. minut
-                    uploadPost();
-                    startActivity(new Intent(CreatePost.this, HomePage.class));
-                    finish();
-                   Toast.makeText(getApplicationContext(),"Post created", Toast.LENGTH_SHORT).show();
-
-                }
-            }
-        });
 
 
 
+
+    }
+
+    private void updatePost() {
     }
 
     @Override
@@ -164,6 +199,28 @@ public class CreatePost extends AppCompatActivity {
         startActivityForResult(galleryIntent, GALLERY_PICK_CODE);
     }
 
+    private void getPostDetails(String id) {
+        Log.d("ID POSTA KOJI TREBA EDITOVATI", "Id posta koji treba editovati "+id);
+        DocumentReference docRef = mStore.collection("posts").document(id);
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                displayedPost  = documentSnapshot.toObject(Post.class);
+                Log.d("DISPLAY POST", displayedPost.toString());
+                if(displayedPost.getDescription()!=null){
+                    description.setText(displayedPost.getDescription());
+                }
+                priceLayout.getEditText().setText(displayedPost.getPrice().toString());
+                titleLayout.getEditText().setText(displayedPost.getTitle());
+                String[] array = getResources().getStringArray(R.array.valutes);
+                int index = ValuteGetter.getIndexOfValute(displayedPost.getValute(), array);
+                valuteSpinner.setSelection(index);
+
+                Picasso.get().load(displayedPost.getImageUri()).into(imageView);
+            }
+        });
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -180,7 +237,6 @@ public class CreatePost extends AppCompatActivity {
     }
 
     private boolean validateTitle() {
-        titleLayout = findViewById(R.id.create_book_title_layout);
         title = titleLayout.getEditText().getText().toString();
         if(title.isEmpty()){
             titleLayout.setError("Title must be given");
@@ -192,7 +248,6 @@ public class CreatePost extends AppCompatActivity {
     }
 
     private boolean validatePrice() {
-        priceLayout = findViewById(R.id.create_price_layout);
         price = priceLayout.getEditText().getText().toString();
         if(price.isEmpty()){
             priceLayout.setError("Price must be added");
@@ -214,7 +269,7 @@ public class CreatePost extends AppCompatActivity {
         return mime.getExtensionFromMimeType(contentResolver.getType(uri));
     }
 
-    private void uploadPost() {
+    private void uploadPost(final String upload_mode) {
         Log.d("SAVING TO STORAGE","saving to storage");
         if (imageUri != null) {
             fileReference = mStorageRef.child(System.currentTimeMillis() + "." + getImageExtension(imageUri));
@@ -242,7 +297,11 @@ public class CreatePost extends AppCompatActivity {
                         String downloadURL = task.getResult().toString();
                         String userID = mAuth.getCurrentUser().getUid();
                         Log.d("TASK COMPLETED","sending download url");
-                        savePostToDB(userID, downloadURL);
+                        if(upload_mode.equals("create")){
+                            savePostToDB(userID, downloadURL);
+                        } else {
+                            updatePostToDB(userID, downloadURL, postID);
+                        }
 
                     } else
                     {
@@ -253,31 +312,57 @@ public class CreatePost extends AppCompatActivity {
         }
     }
 
-    private void savePostToDB(final
-                              String id, final String downloadUlr) {
+    private void updatePostToDB(final String id, final String downloadURL, final String postID) {
+        DocumentReference docRef = mStore.collection("users").document(id);
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                User user = documentSnapshot.toObject(User.class);
+                Post post = new Post(downloadURL, title, priceValue, valute, descriptionString);
+                post.setUser(user);
+                post.setUserID(id);
+                mStore.collection("posts").document(postID)
+                    .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("", "Updated post");
+
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.d("FAILED TO UPDATE", e.getMessage());
+
+                    }
+                });
+            }
+        });
+    }
+
+    private void savePostToDB(final String id, final String downloadUlr) {
 
         DocumentReference docRef = mStore.collection("users").document(id);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                  @Override
+            @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                     User user = documentSnapshot.toObject(User.class);
-                     Post post = new Post(downloadUlr,title, priceValue, valute, descriptionString);
-                     post.setUser(user);
-                     post.setUserID(id);
-                     mStore.collection("posts")
-                              .add(post)
-                              .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
-                                  @Override
-                                  public void onSuccess(DocumentReference documentReference) {
-                                      Log.d("", "DocumentSnapshot written with ID: " + documentReference.getId());
-                                  }
-                              })
-                              .addOnFailureListener(new OnFailureListener() {
-                                  @Override
-                                  public void onFailure(@NonNull Exception e) {
-                                      Log.w("", "Error adding document", e);
-                                  }
-                              });
+                User user = documentSnapshot.toObject(User.class);
+                Post post = new Post(downloadUlr, title, priceValue, valute, descriptionString);
+                post.setUser(user);
+                post.setUserID(id);
+                mStore.collection("posts")
+                        .add(post)
+                        .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
+                            @Override
+                            public void onSuccess(DocumentReference documentReference) {
+                                Log.d("", "DocumentSnapshot written with ID: " + documentReference.getId());
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("", "Error adding document", e);
+                            }
+                        });
             }
         });
     }

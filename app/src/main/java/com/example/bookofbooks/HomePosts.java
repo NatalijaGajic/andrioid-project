@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -20,19 +19,11 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.bookofbooks.Adapters.FirestoreAdapter;
 import com.example.bookofbooks.Interface.PostClickListener;
 import com.example.bookofbooks.Models.Post;
-import com.example.bookofbooks.Utility.TimestampConverter;
-import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
-import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.SnapshotParser;
-import com.firebase.ui.firestore.paging.FirestorePagingAdapter;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
-import com.firebase.ui.firestore.paging.LoadingState;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
-import com.squareup.picasso.Picasso;
-
-import java.util.Date;
 
 public class HomePosts extends Fragment implements PostClickListener {
 
@@ -88,7 +79,7 @@ public class HomePosts extends Fragment implements PostClickListener {
                 })
                 .build();
 
-        adapter = new FirestoreAdapter(options, this);
+        adapter = new FirestoreAdapter(options, this, R.layout.card_layout_book);
 
         firestoreList.setHasFixedSize(true);
         firestoreList.setLayoutManager(new LinearLayoutManager(getActivity()));

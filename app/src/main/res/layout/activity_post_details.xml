@@ -26,10 +26,10 @@
                     android:orientation="vertical">
 
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:paddingTop="30dp"
                         android:id="@+id/postDetailsImageView"
                         android:layout_width="match_parent"
                         android:layout_height="200dp"
+                        android:background="#DCE8E6"
                         android:foregroundTint="#E1DCDC" />
 
                     <TextView
@@ -38,6 +38,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10dp"
                         android:gravity="center"
+                        android:padding="2dp"
                         android:text="Naslov knjige"
                         android:textColor="#000000"
                         android:textSize="30sp" />
@@ -202,8 +203,8 @@
                 android:layout_marginRight="25dp"
                 android:clickable="true"
                 android:src="@android:drawable/btn_star"
-                android:tint="#84DDD8D8"
-                app:backgroundTint="#00FFFFFF"
+                android:tint="#84F8F8F8"
+                app:backgroundTint="#88CFC8C8"
                 app:layout_constraintEnd_toEndOf="@id/topBookCardView"
                 app:layout_constraintTop_toTopOf="@id/topBookCardView" />
 

@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity  {
         mAuth = FirebaseAuth.getInstance();
         //ako je loginovan odmah ga redirektuje
         if(mAuth.getCurrentUser()!= null){
-            startActivity(new Intent(getApplicationContext(), HomePage.class));
+           startActivity(new Intent(getApplicationContext(), HomePage.class));
             finish();
         }
         logInButton.setOnClickListener(new Button.OnClickListener(){
