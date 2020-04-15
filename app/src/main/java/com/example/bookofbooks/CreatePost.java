@@ -57,7 +57,7 @@ public class CreatePost extends AppCompatActivity {
     TextInputLayout titleLayout, priceLayout;
     EditText description;
     Spinner valuteSpinner;
-    String title, descriptionString, price, valute, postID;
+    String title, descriptionString, price, valute, postID, userID;
     Integer priceValue;
     Button takePicture, choosePicture;
     ImageView imageView;
@@ -90,9 +90,10 @@ public class CreatePost extends AppCompatActivity {
         titleLayout = findViewById(R.id.create_book_title_layout);
         priceLayout = findViewById(R.id.create_price_layout);
         description = findViewById(R.id.create_description);
+        userID = mAuth.getCurrentUser().getUid();
 
 
-        if(getIntent().getStringExtra("postID").isEmpty()){
+        if(getIntent().getStringExtra("postID")== null){
             //create post
             createPost = findViewById(R.id.create_button);
             createPost.setOnClickListener(new View.OnClickListener() {
@@ -122,10 +123,9 @@ public class CreatePost extends AppCompatActivity {
                 public void onClick(View v) {
                     if (validateForm()) {
                         valute = valuteSpinner.getSelectedItem().toString();
-                        Toast.makeText(getApplicationContext(), "Post updated", Toast.LENGTH_SHORT).show();
                         uploadPost("edit");
-                        /*startActivity(new Intent(CreatePost.this, UserPosts.class));
-                        finish();*/
+                        finish();
+                        Toast.makeText(getApplicationContext(), "Post updated", Toast.LENGTH_SHORT).show();
 
                     }
                 }
@@ -215,7 +215,6 @@ public class CreatePost extends AppCompatActivity {
                 String[] array = getResources().getStringArray(R.array.valutes);
                 int index = ValuteGetter.getIndexOfValute(displayedPost.getValute(), array);
                 valuteSpinner.setSelection(index);
-
                 Picasso.get().load(displayedPost.getImageUri()).into(imageView);
             }
         });
@@ -295,12 +294,14 @@ public class CreatePost extends AppCompatActivity {
                     if (task.isSuccessful())
                     {
                         String downloadURL = task.getResult().toString();
-                        String userID = mAuth.getCurrentUser().getUid();
                         Log.d("TASK COMPLETED","sending download url");
                         if(upload_mode.equals("create")){
                             savePostToDB(userID, downloadURL);
-                        } else {
+                        } else if(upload_mode.equals("edit")){
                             updatePostToDB(userID, downloadURL, postID);
+                        } else {
+                            Log.d("TASK COMPLETED","what is going on");
+                            //TODO kada se ne izabere slika pri udejtu, imageUri ostaje null
                         }
 
                     } else
@@ -309,23 +310,41 @@ public class CreatePost extends AppCompatActivity {
                     }
                 }
             });
+        } else {
+            if(upload_mode.equals("edit")){
+                updatePostToDB(userID, displayedPost.getImageUri(), postID);
+            } else {
+                //TODO dodaj neku random sliku koja je sotrovana ovde?
+            }
         }
     }
 
     private void updatePostToDB(final String id, final String downloadURL, final String postID) {
+        Log.d("", "Stigao do ovde");
         DocumentReference docRef = mStore.collection("users").document(id);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User user = documentSnapshot.toObject(User.class);
-                Post post = new Post(downloadURL, title, priceValue, valute, descriptionString);
+                descriptionString = description.getText().toString();
+                final Post post = new Post(downloadURL, title, priceValue, valute, descriptionString);
+                post.setUsersFollowing(displayedPost.getUsersFollowing());
+               /* mStore.collection("posts").document(postID).get()
+                        .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                            @Override
+                            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                                Post postWithID = documentSnapshot.toObject(Post.class);
+                                post.setUsersFollowing(postWithID.getUsersFollowing());
+                            }
+                        });*/
                 post.setUser(user);
                 post.setUserID(id);
+                Log.d("TAG", "Updated stigao do naredbe za update");
                 mStore.collection("posts").document(postID)
                     .set(post).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Log.d("", "Updated post");
+                       // Toast.makeText(getApplicationContext(), "Post updated", Toast.LENGTH_SHORT).show();
 
                     }
                 }).addOnFailureListener(new OnFailureListener() {
@@ -346,7 +365,9 @@ public class CreatePost extends AppCompatActivity {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 User user = documentSnapshot.toObject(User.class);
+                descriptionString = description.getText().toString();
                 Post post = new Post(downloadUlr, title, priceValue, valute, descriptionString);
+                post.setUsersFollowing(new ArrayList<String>());
                 post.setUser(user);
                 post.setUserID(id);
                 mStore.collection("posts")

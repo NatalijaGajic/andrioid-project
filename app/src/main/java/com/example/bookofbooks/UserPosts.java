@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.bookofbooks.Adapters.FirestoreAdapter;
 import com.example.bookofbooks.Adapters.FirestoreAdapterListener;
@@ -53,6 +54,7 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
     private ImageView edit, delete;
     private Query query;
     private PagedList.Config config;
+    private SwipeRefreshLayout swipeRefreshLayout;
     FirestoreRecyclerOptions<Post> options;
     ListenerRegistration registration;
     @Nullable
@@ -66,7 +68,7 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firestoreList = getView().findViewById(R.id.user_posts_recyclerView);
-
+        swipeRefreshLayout = getView().findViewById(R.id.users_posts_swiperefresher);
     }
 
     @Override
@@ -108,98 +110,17 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
         firestoreList.setHasFixedSize(true);
         firestoreList.setLayoutManager(new LinearLayoutManager(getActivity()));
         firestoreList.setAdapter(adapter);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.notifyDataSetChanged();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
         
     }
 
-    /*public void deletePost(DocumentSnapshot documentSnapshot, final int position) {
-        final String postID = documentSnapshot.getId();
-        new AlertDialog.Builder(getContext())
-                .setTitle("Are you sure?")
-                .setMessage("Do you want to delete post "+ documentSnapshot.toObject(Post.class).getTitle())
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(final DialogInterface dialog, int which) {
-                            //delete
-                        firebaseFirestore.collection("posts").document(postID)
-                                .delete()
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("", "DocumentSnapshot successfully deleted!");
-                                        Toast.makeText(getContext(), "Post deleted", Toast.LENGTH_SHORT).show();
-                                        dialog.dismiss();
-                                       // refreshPage();
-
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("", "Error deleting document", e);
-                                        Toast.makeText(getContext(), "Error deleting", Toast.LENGTH_SHORT).show();
-                                        dialog.dismiss();
-                                    }
-                                });
-
-
-                    }
-                })
-                .setNeutralButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                })
-                .show();
-    }*/
-
-    /*private void refreshPage() {
-        String id = mAuth.getCurrentUser().getUid();
-        query = (Query) firebaseFirestore.collection("posts").whereEqualTo("userID", id)
-                .orderBy("date", Query.Direction.DESCENDING);
-        registration = query.addSnapshotListener(
-                new EventListener<QuerySnapshot>() {
-                    @Override
-                    public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots, @Nullable FirebaseFirestoreException e) {
-                        adapter.notifyDataSetChanged();
-                    }
-                    // ...
-                });
-
-        //RecyclerOption
-        config = new PagedList.Config.Builder()
-                .setInitialLoadSizeHint(7)
-                .setPageSize(1)
-                .build();
-        options = new FirestorePagingOptions.Builder<Post>()
-                .setLifecycleOwner(this)
-                .setQuery(query, config, new SnapshotParser<Post>() {
-                    @NonNull
-                    @Override
-                    public Post parseSnapshot(@NonNull DocumentSnapshot snapshot) {
-                        Post post = snapshot.toObject(Post.class);
-                        post.setPostID(snapshot.getId());
-                        return post;
-                    }
-                })
-                .build();
-        adapter = new FirestoreAdapterListener(options);
-        adapter.setUsersPostsInterface(this);
-
-        firestoreList.setHasFixedSize(true);
-        firestoreList.setLayoutManager(new LinearLayoutManager(getActivity()));
-        firestoreList.setAdapter(adapter);
-    }*/
-
-
-    /*public void editPost(DocumentSnapshot documentSnapshot, int position) {
-        Toast.makeText(getContext(), "Clicked edit", Toast.LENGTH_SHORT).show();
-        String id = documentSnapshot.getId();
-        Intent intent = new Intent(getContext(), CreatePost.class);
-        intent.putExtra("postID", id);
-        startActivity(intent);
-
-    }*/
 
     @Override
     public void onStart() {
@@ -276,14 +197,5 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
     }
 
 
-    /*@Override
-    public void onItemClick(DocumentSnapshot documentSnapshot, int position) {
-        String id = documentSnapshot.getId();
-        Log.d("ON ITEM CLICK", "clicked item "+ id);
-        Toast.makeText(getActivity().getApplicationContext(), "clicked item", Toast.LENGTH_SHORT).show();
-        Intent intent = new Intent(getContext(), PostDetails.class);
-        intent.putExtra("postID", id);
-        startActivity(intent);
-    }*/
 
 }

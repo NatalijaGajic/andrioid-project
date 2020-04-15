@@ -50,6 +50,7 @@
                         android:layout_margin="10dp"
                         android:background="@drawable/edit_text_style"
                         android:gravity="center"
+                        android:paddingBottom="50dp"
                         android:text="Opis knjige koji je trenutno nebitan ajdisjffdsjifj ali ajde da vidmo kako izgleda kada ljudi krenu da pisu o svojoj knjizi. U vrlo dobrom stanju, veoma  retko koriscenja, jednostavno me je mrzelo da citam. Sve u svemu, pisac je jako dobar"
                         android:textSize="20sp" />
 

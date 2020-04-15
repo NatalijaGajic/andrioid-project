@@ -87,6 +87,14 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             }
             case R.id.make_post: {
                 startActivity(new Intent(getApplicationContext(), CreatePost.class));
+                break;
+            }
+            case R.id.my_wishlist: {
+                fragmentManager = getSupportFragmentManager();
+                fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.replace(R.id.container_fragment, new WishlistPosts());
+                fragmentTransaction.commit();
+                break;
             }
         }
         return false;

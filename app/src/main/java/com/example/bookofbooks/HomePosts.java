@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.bookofbooks.Adapters.FirestoreAdapter;
 import com.example.bookofbooks.Interface.PostClickListener;
@@ -25,8 +26,10 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
+
 public class HomePosts extends Fragment implements PostClickListener {
 
+    private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView firestoreList;
     private onFragmentButtonSelected listener;
 
@@ -52,6 +55,7 @@ public class HomePosts extends Fragment implements PostClickListener {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         firestoreList = getView().findViewById(R.id.home_posts_recyclerView);
+        swipeRefreshLayout = getView().findViewById(R.id.home_posts_swipe_refresh);
     }
 
     @Override
@@ -63,7 +67,7 @@ public class HomePosts extends Fragment implements PostClickListener {
         Query query = firebaseFirestore.collection("posts").orderBy("date", Query.Direction.DESCENDING);
         //RecyclerOption
         PagedList.Config config = new PagedList.Config.Builder()
-                .setInitialLoadSizeHint(1)
+                .setInitialLoadSizeHint(10)
                 .setPageSize(1)
                 .build();
         FirestorePagingOptions<Post> options = new FirestorePagingOptions.Builder<Post>()
@@ -85,6 +89,39 @@ public class HomePosts extends Fragment implements PostClickListener {
         firestoreList.setLayoutManager(new LinearLayoutManager(getActivity()));
         firestoreList.setAdapter(adapter);
 
+       swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                adapter.stopListening();
+                Query query = firebaseFirestore.collection("posts").orderBy("date", Query.Direction.DESCENDING);
+                //RecyclerOption
+                PagedList.Config config = new PagedList.Config.Builder()
+                        .setInitialLoadSizeHint(10)
+                        .setPageSize(1)
+                        .build();
+                FirestorePagingOptions<Post> options = new FirestorePagingOptions.Builder<Post>()
+                        .setLifecycleOwner(HomePosts.this)
+                        .setQuery(query, config, new SnapshotParser<Post>() {
+                            @NonNull
+                            @Override
+                            public Post parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                                Post post = snapshot.toObject(Post.class);
+                                post.setPostID(snapshot.getId());
+                                return post;
+                            }
+                        })
+                        .build();
+
+                adapter = new FirestoreAdapter(options, HomePosts.this, R.layout.card_layout_book);
+
+                firestoreList.setHasFixedSize(true);
+                firestoreList.setLayoutManager(new LinearLayoutManager(getActivity()));
+                firestoreList.setAdapter(adapter);
+                adapter.startListening();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
     }
 
     @Override
@@ -95,7 +132,7 @@ public class HomePosts extends Fragment implements PostClickListener {
         }
     }
 
-    @Override
+   /* @Override
     public void onStart() {
         super.onStart();
         adapter.startListening();
@@ -105,7 +142,7 @@ public class HomePosts extends Fragment implements PostClickListener {
     public void onStop() {
         super.onStop();
         adapter.stopListening();
-    }
+    }*/
 
     @Override
     public void onItemClick(DocumentSnapshot documentSnapshot, int position) {

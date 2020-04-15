@@ -1,11 +1,13 @@
 package com.example.bookofbooks.Models;
 
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Post {
     private String title, description, valute, imageUri, userID, postID;
     private User user;
+    private ArrayList<String> usersFollowing;
     private Integer price;
 
     private Date date;
@@ -45,6 +47,15 @@ public class Post {
 
     public void setPostID(String postID) {
         this.postID = postID;
+    }
+
+
+    public ArrayList<String> getUsersFollowing() {
+        return usersFollowing;
+    }
+
+    public void setUsersFollowing(ArrayList<String> usersFollowing) {
+        this.usersFollowing = usersFollowing;
     }
 
     public Date getDate() {
