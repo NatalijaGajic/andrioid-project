@@ -9,6 +9,7 @@ public class Post {
     private User user;
     private ArrayList<String> usersFollowing;
     private Integer price;
+    private String searchTitle;
 
     private Date date;
 
@@ -17,12 +18,13 @@ public class Post {
     }
 
     public Post(String imageUri, String title, Integer price, String valute, String description) {
-        this.title = title;
+        this.title = title.trim();
         this.description = description;
         this.valute = valute;
         this.imageUri = imageUri;
         this.price = price;
         this.date = new Date(System.currentTimeMillis());
+        this.searchTitle = title.toLowerCase();
     }
 
     public String getUserID() {
@@ -72,7 +74,8 @@ public class Post {
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.title = title.trim();
+        this.searchTitle = title.toLowerCase();
     }
 
     public String getDescription() {
@@ -105,5 +108,13 @@ public class Post {
 
     public void setPrice(Integer price) {
         this.price = price;
+    }
+
+    public String getSearchTitle() {
+        return searchTitle;
+    }
+
+    public void setSearchTitle(String searchTitle) {
+        this.searchTitle = searchTitle;
     }
 }

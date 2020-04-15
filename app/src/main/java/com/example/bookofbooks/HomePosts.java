@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.paging.PagedList;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,6 +32,7 @@ public class HomePosts extends Fragment implements PostClickListener {
 
     private SwipeRefreshLayout swipeRefreshLayout;
     private RecyclerView firestoreList;
+    private SearchView searchView;
     private onFragmentButtonSelected listener;
 
     FirebaseFirestore firebaseFirestore;
@@ -56,6 +58,7 @@ public class HomePosts extends Fragment implements PostClickListener {
         super.onViewCreated(view, savedInstanceState);
         firestoreList = getView().findViewById(R.id.home_posts_recyclerView);
         swipeRefreshLayout = getView().findViewById(R.id.home_posts_swipe_refresh);
+        searchView = getView().findViewById(R.id.search_view);
     }
 
     @Override
@@ -93,7 +96,8 @@ public class HomePosts extends Fragment implements PostClickListener {
             @Override
             public void onRefresh() {
                 adapter.stopListening();
-                Query query = firebaseFirestore.collection("posts").orderBy("date", Query.Direction.DESCENDING);
+                Query query = firebaseFirestore.collection("posts")
+                       .orderBy("date", Query.Direction.DESCENDING);
                 //RecyclerOption
                 PagedList.Config config = new PagedList.Config.Builder()
                         .setInitialLoadSizeHint(10)
@@ -122,6 +126,60 @@ public class HomePosts extends Fragment implements PostClickListener {
             }
         });
 
+       searchView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                searchView.setIconified(false);
+            }
+        });
+
+       searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+           @Override
+           public boolean onQueryTextSubmit(String query) {
+               Toast.makeText(getContext(),"text submitted", Toast.LENGTH_SHORT ).show();
+               searchPosts(query);
+               return true;
+           }
+
+           @Override
+           public boolean onQueryTextChange(String newText) {
+               return false;
+           }
+       });
+
+    }
+
+    private void searchPosts(String search) {
+       // adapter.stopListening();
+        Toast.makeText(getContext(),search, Toast.LENGTH_SHORT).show();
+
+        adapter.stopListening();
+        Query query = firebaseFirestore.collection("posts")
+                .whereEqualTo("searchTitle",search.trim().toLowerCase());
+        //RecyclerOption
+        PagedList.Config config = new PagedList.Config.Builder()
+                .setInitialLoadSizeHint(10)
+                .setPageSize(1)
+                .build();
+        FirestorePagingOptions<Post> options = new FirestorePagingOptions.Builder<Post>()
+                .setLifecycleOwner(HomePosts.this)
+                .setQuery(query, config, new SnapshotParser<Post>() {
+                    @NonNull
+                    @Override
+                    public Post parseSnapshot(@NonNull DocumentSnapshot snapshot) {
+                        Post post = snapshot.toObject(Post.class);
+                        post.setPostID(snapshot.getId());
+                        return post;
+                    }
+                })
+                .build();
+
+        adapter = new FirestoreAdapter(options, HomePosts.this, R.layout.card_layout_book);
+
+        firestoreList.setHasFixedSize(true);
+        firestoreList.setLayoutManager(new LinearLayoutManager(getActivity()));
+        firestoreList.setAdapter(adapter);
+        adapter.startListening();
     }
 
     @Override
