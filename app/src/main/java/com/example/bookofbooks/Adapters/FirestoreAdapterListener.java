@@ -3,6 +3,7 @@ package com.example.bookofbooks.Adapters;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -79,7 +80,8 @@ public class FirestoreAdapterListener extends FirestoreRecyclerAdapter<Post, Fir
     public class PostViewHolder extends RecyclerView.ViewHolder {
 
         public TextView title, date, country, price;
-        public ImageView image, delete, edit;
+        public ImageView image;
+        public ImageView delete, edit;
 
         public PostViewHolder(@NonNull View itemView) {
             super(itemView);

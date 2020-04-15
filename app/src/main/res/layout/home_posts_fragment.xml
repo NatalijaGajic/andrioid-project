@@ -14,8 +14,7 @@
         android:layout_marginLeft="30dp"
         android:layout_marginTop="90dp"
         android:layout_marginRight="30dp"
-        android:background="#E5D9E1E0"
-        android:backgroundTint="#D8D7D7"
+        android:background="@color/grey"
         android:bottomLeftRadius="15dp"
         android:bottomRightRadius="15dp"
         android:clickable="true"
@@ -23,7 +22,22 @@
         android:focusableInTouchMode="true"
         android:topLeftRadius="15dp"
         android:topRightRadius="15dp"
-        app:queryHint="Search for a book" />
+        app:queryHint="Search for a book"
+        />
+    <Button
+        android:id="@+id/country_filter"
+        android:drawableLeft="@drawable/ic_country_24dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="  Country"
+        android:textAllCaps="false"
+        android:topLeftRadius="15dp"
+        android:topRightRadius="15dp"
+        android:bottomLeftRadius="15dp"
+        android:bottomRightRadius="15dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="30dp"
+        />
 
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
     android:id="@+id/home_posts_swipe_refresh"
