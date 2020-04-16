@@ -66,6 +66,7 @@ public class WishlistPosts extends Fragment implements WishlistPostClickListener
                      @Override
                      public FavoritePost parseSnapshot(@NonNull DocumentSnapshot snapshot) {
                          FavoritePost post = snapshot.toObject(FavoritePost.class);
+                         post.setFavoritePostID(snapshot.getId());
                          return post;
                      }
                  })

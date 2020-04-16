@@ -48,17 +48,6 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         fragmentTransaction.add(R.id.container_fragment, new HomePosts());
         fragmentTransaction.commit();
 
-       /* logOutButton = (Button) findViewById(R.id.logOutButton);
-        logOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                FirebaseAuth.getInstance().signOut();
-                startActivity(new Intent(getApplicationContext(), MainActivity.class));
-                finish();
-            }
-        });*/
-
-
     }
 
     @Override
@@ -94,6 +83,10 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
                 fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.container_fragment, new WishlistPosts());
                 fragmentTransaction.commit();
+                break;
+            }
+            case R.id.user_settings: {
+                startActivity(new Intent(getApplicationContext(), UserSettings.class));
                 break;
             }
         }

@@ -314,7 +314,7 @@ public class CreatePost extends AppCompatActivity {
             if(upload_mode.equals("edit")){
                 updatePostToDB(userID, displayedPost.getImageUri(), postID);
             } else {
-                //TODO dodaj neku random sliku koja je sotrovana ovde?
+                savePostToDB(userID, getString(R.string.default_image_url));
             }
         }
     }

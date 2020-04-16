@@ -38,8 +38,8 @@ import java.util.List;
 
 public class PostDetails extends AppCompatActivity {
 
-    private TextView title, description, username, date, country;
-    private Button price;
+    private TextView title, description, username, date, country, interestedText;
+    private Button price, sendMessage;
     private ImageView image;
     private String postID;
     private FloatingActionButton floatingActionButton;
@@ -59,7 +59,9 @@ public class PostDetails extends AppCompatActivity {
         country = (TextView) findViewById(R.id.details_countryTextView);
         price = (Button) findViewById(R.id.details_priceButton);
         image = (ImageView) findViewById(R.id.postDetailsImageView);
+        sendMessage = (Button)findViewById(R.id.details_sendMessage);
         floatingActionButton = (FloatingActionButton) findViewById(R.id.details_floatingActionButton);
+        interestedText = (TextView) findViewById(R.id.interestedTextView);
 
         firebaseFirestore = FirebaseFirestore.getInstance();
         postID = getIntent().getStringExtra("postID");
@@ -95,7 +97,7 @@ public class PostDetails extends AppCompatActivity {
                         @Override
                         public void onSuccess(Void aVoid) {
                             FavoritePost post = new FavoritePost(userID, postID, displayedPost);
-                            firebaseFirestore.collection("wishlist").document(userID + postID)
+                            firebaseFirestore.collection("wishlist").document(postID+userID)
                                     .set(post)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
@@ -115,7 +117,7 @@ public class PostDetails extends AppCompatActivity {
         } else {
             displayedPost.getUsersFollowing().remove(displayedPost.getUsersFollowing().indexOf(userID));
             firebaseFirestore.collection("posts").document(postID).set(displayedPost);
-            firebaseFirestore.collection("wishlist").document(userID+postID)
+            firebaseFirestore.collection("wishlist").document(postID+userID)
                     .delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
@@ -127,71 +129,46 @@ public class PostDetails extends AppCompatActivity {
         }
     }
 
-    private void addToWishlist2() {
-        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        displayedPost.setPostID(postID);
-        TestCollection2 testFave = new TestCollection2(displayedPost);
-        testFave.addToArrayOfFavoritedPosts(displayedPost);
-        firebaseFirestore.collection("testCollection2").document(userID).set(testFave)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void avoid) {
-                        Toast.makeText(getApplicationContext(),"Added", Toast.LENGTH_SHORT).show();
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(),e.getMessage(), Toast.LENGTH_SHORT).show();
-
-            }
-        });
-    }
-
-
-    private void addToWishlist1() {
-        String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        TestCollection testFave = new TestCollection(postID, displayedPost);
-        testFave.addToArrayOfFavoritedPosts(postID+"682", displayedPost);
-        firebaseFirestore.collection("testCollection").document(userID).set(testFave)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void avoid) {
-                Toast.makeText(getApplicationContext(),"Added", Toast.LENGTH_SHORT).show();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(),e.getMessage(), Toast.LENGTH_SHORT).show();
-
-            }
-        });
-        //firebaseFirestore.collection("testCollection").add()
-    }
 
     private void getPostDetails(String id) {
         DocumentReference docRef = firebaseFirestore.collection("posts").document(id);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
-                displayedPost  = documentSnapshot.toObject(Post.class);
-                setAddToWishListButton(displayedPost.getUsersFollowing());
-                title.setText(displayedPost.getTitle());
-                price.setText(displayedPost.getPrice().toString()+" "+displayedPost.getValute());
-                description.setText(displayedPost.getDescription());
-                String dateString = TimestampConverter.timestampToDate(displayedPost.getDate().toString());
-                date.setText(dateString);
-                username.setText(displayedPost.getUser().getFirstName()+" "+displayedPost.getUser().getLastName());
-                Picasso.get().load(displayedPost.getImageUri()).into(image);
+                    displayedPost  = documentSnapshot.toObject(Post.class);
+                    if(displayedPost!=null) {
+                        setAddToWishListAndSendMessegeButton(displayedPost.getUsersFollowing());
+                        title.setText(displayedPost.getTitle());
+                        price.setText(displayedPost.getPrice().toString()+" "+displayedPost.getValute());
+                        description.setText(displayedPost.getDescription());
+                        String dateString = TimestampConverter.timestampToDate(displayedPost.getDate().toString());
+                        date.setText(dateString);
+                        username.setText(displayedPost.getUser().getFirstName()+" "+displayedPost.getUser().getLastName());
+                        Picasso.get().load(displayedPost.getImageUri()).into(image);
+                    }
+                else {
+                    Toast.makeText(PostDetails.this, "This post is no longer available. Refresh the page.", Toast.LENGTH_SHORT ).show();
+                    finish();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
             }
         });
     }
 
-    private void setAddToWishListButton(ArrayList<String> usersFollowing) {
+    private void setAddToWishListAndSendMessegeButton(ArrayList<String> usersFollowing) {
         String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if(displayedPost.getUserID().equals(userID)){
             //wishlist button should be removed
+            sendMessage.setVisibility(View.GONE);
             floatingActionButton.setVisibility(View.GONE);
+            interestedText.setVisibility(View.GONE);
         } else {
+            floatingActionButton.setVisibility(View.VISIBLE);
+            interestedText.setVisibility(View.VISIBLE);
+            sendMessage.setVisibility(View.VISIBLE);
             if(usersFollowing.indexOf(userID) == -1){
                 //wishlist button set to transparent
                 ADDED_TO_WISHLIST = false;

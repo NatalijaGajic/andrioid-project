@@ -30,6 +30,7 @@ import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.firebase.ui.firestore.SnapshotParser;
 import com.firebase.ui.firestore.paging.FirestorePagingOptions;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -41,6 +42,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 
@@ -49,6 +52,7 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
 
     private RecyclerView firestoreList;
     private FirebaseFirestore firebaseFirestore;
+    private FirebaseStorage firebaseStorage;
     private FirebaseAuth mAuth;
     private FirestoreAdapterListener adapter;
     private ImageView edit, delete;
@@ -75,6 +79,7 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         firebaseFirestore = FirebaseFirestore.getInstance();
+        firebaseStorage = FirebaseStorage.getInstance();
         mAuth = FirebaseAuth.getInstance();
         String id = mAuth.getCurrentUser().getUid();
         //Query
@@ -154,7 +159,7 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
     }
 
     @Override
-    public void deletePost(Post post, int position) {
+    public void deletePost(final Post post, int position) {
         final String postID = post.getPostID();
         new AlertDialog.Builder(getContext())
                 .setTitle("Are you sure?")
@@ -169,6 +174,18 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Log.d("", "DocumentSnapshot successfully deleted!");
+                                        firebaseStorage.getReferenceFromUrl(post.getImageUri()).delete()
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        Log.d("", "Deleted from storage");
+                                                    }
+                                                }). addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
                                         Toast.makeText(getContext(), "Post deleted", Toast.LENGTH_SHORT).show();
                                         dialog.dismiss();
                                         // refreshPage();

@@ -1,7 +1,7 @@
 package com.example.bookofbooks.Models;
 
 public class FavoritePost {
-    String userID, postID;
+    String userID, postID, favoritePostID;
     Post post;
 
     public FavoritePost(){
@@ -36,5 +36,13 @@ public class FavoritePost {
 
     public void setPost(Post post) {
         this.post = post;
+    }
+
+    public String getFavoritePostID() {
+        return favoritePostID;
+    }
+
+    public void setFavoritePostID(String favoritePostID) {
+        this.favoritePostID = favoritePostID;
     }
 }

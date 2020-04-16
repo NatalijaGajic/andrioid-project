@@ -50,4 +50,9 @@ public class User {
         this.country = country;
     }
 
+    public String toString(){
+
+        return this.firstName + " " + this.lastName + " " +this. country + " " +this.email ;
+    }
+
 }

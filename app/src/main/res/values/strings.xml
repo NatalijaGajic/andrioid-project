@@ -8,4 +8,6 @@
         <item>$</item>
         <item>£</item>
     </string-array>
+    <string name="default_image_url">"https://firebasestorage.googleapis.com/v0/b/bookofbooks-39ded.appspot.com/o/images%2FdefaultImage.jpg?alt=media&amp;token=e06ad822-1564-4fbd-b582-b692258f2f71"
+    </string>
 </resources>
