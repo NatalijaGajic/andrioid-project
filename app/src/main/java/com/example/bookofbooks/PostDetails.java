@@ -110,27 +110,27 @@ public class PostDetails extends AppCompatActivity {
         final String userID = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if(displayedPost.getUsersFollowing().indexOf(userID)== -1){
             displayedPost.getUsersFollowing().add(userID);
-            firebaseFirestore.collection("posts").document(postID).set(displayedPost)
+            FavoritePost post = new FavoritePost(userID, postID, displayedPost);
+            firebaseFirestore.collection("wishlist").document(postID+userID)
+                    .set(post)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            FavoritePost post = new FavoritePost(userID, postID, displayedPost);
-                            firebaseFirestore.collection("wishlist").document(postID+userID)
-                                    .set(post)
+                            firebaseFirestore.collection("posts").document(postID).set(displayedPost)
                                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            Toast.makeText(getApplicationContext(),"Added to wishlist", Toast.LENGTH_SHORT).show();
+
                                         }
-                                    }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-
-                                }
-                            });
-
+                                    });
+                            Toast.makeText(getApplicationContext(),"Added to wishlist", Toast.LENGTH_SHORT).show();
                         }
-                    });
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+
+                }
+            });
 
         } else {
             displayedPost.getUsersFollowing().remove(displayedPost.getUsersFollowing().indexOf(userID));

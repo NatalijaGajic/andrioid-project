@@ -26,11 +26,11 @@
         <menu>
             <item
                 android:id="@+id/my_chats"
-                android:icon="@drawable/ic_star_black_24dp"
+                android:icon="@drawable/ic_message_black_24dp"
                 android:title="Other chats" />
             <item
                 android:id="@+id/my_posts_chats"
-                android:icon="@drawable/ic_star_black_24dp"
+                android:icon="@drawable/ic_message_black_24dp"
                 android:title="My posts chats" />
         </menu>
     </item>

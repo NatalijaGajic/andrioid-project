@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.bookofbooks.Models.Chat;
 import com.example.bookofbooks.R;
+import com.example.bookofbooks.Utility.UsersInfo;
 import com.firebase.ui.firestore.FirestoreRecyclerAdapter;
 import com.firebase.ui.firestore.FirestoreRecyclerOptions;
 import com.squareup.picasso.Picasso;
@@ -36,7 +37,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
         Chat chat = chats.get(position);
         Log.d("ChatAdapter", chat.toString());
-        holder.userName.setText(chat.getOtherUserName());
+        if(chat.getOtherUserName().equals(UsersInfo.getUser().getUsername())){
+            holder.userName.setText(chat.getPostUserName());
+        } else {
+            holder.userName.setText(chat.getOtherUserName());
+        }
         holder.message.setText(chat.getRecentText().getMessage());
         holder.dateText.setText(chat.getDate());
         holder.postTitle.setText(chat.getPostTitle());

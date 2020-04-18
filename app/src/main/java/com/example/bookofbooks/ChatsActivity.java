@@ -72,6 +72,7 @@ public class ChatsActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Collection empty", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(getApplicationContext(), "Chats asigned", Toast.LENGTH_SHORT).show();
+                    chats.removeAll(chats);
                     chats.addAll(document.getChats());
                     chatAdapter.notifyDataSetChanged();
                 }
