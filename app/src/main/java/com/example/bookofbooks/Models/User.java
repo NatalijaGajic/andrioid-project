@@ -55,4 +55,7 @@ public class User {
         return this.firstName + " " + this.lastName + " " +this. country + " " +this.email ;
     }
 
+    public String getUsername(){
+        return firstName+" "+lastName;
+    }
 }

@@ -37,6 +37,7 @@ import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 
 
 public class HomePosts extends Fragment implements PostClickListener {
@@ -205,6 +206,7 @@ public class HomePosts extends Fragment implements PostClickListener {
 
     private void filterByCountry(String country) {
         adapter.stopListening();
+        Date date = new Date(System.currentTimeMillis());
         Query query = firebaseFirestore.collection("posts")
                 .whereEqualTo("user.country", country);
         //RecyclerOption

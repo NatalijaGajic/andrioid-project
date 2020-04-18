@@ -16,8 +16,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
+import com.example.bookofbooks.Models.User;
+import com.example.bookofbooks.Utility.UsersInfo;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class HomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, HomePosts.onFragmentButtonSelected {
 
@@ -25,6 +30,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
     Toolbar toolbar;
+    FirebaseAuth mAuth;
     NavigationView navigationView;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
@@ -42,11 +48,36 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         actionBarDrawerToggle.syncState();
         navigationView.setNavigationItemSelectedListener(this);
 
+        mAuth = FirebaseAuth.getInstance();
+
+        if(UsersInfo.getUserInfo() == null) {
+            final String id = mAuth.getUid();
+            FirebaseFirestore.getInstance().collection("users").document(id)
+                    .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    User user = documentSnapshot.toObject(User.class);
+                    UsersInfo.setUsersInfo(user, id);
+                }
+            });
+        } else if (UsersInfo.getUserID() != mAuth.getCurrentUser().getUid()){
+            final String id = mAuth.getUid();
+            FirebaseFirestore.getInstance().collection("users").document(id)
+                    .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    User user = documentSnapshot.toObject(User.class);
+                    UsersInfo.setUsersInfo(user, id);
+                }
+            });
+        }
+
         //default fragment
         fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.container_fragment, new HomePosts());
         fragmentTransaction.commit();
+
 
     }
 
@@ -87,6 +118,18 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             }
             case R.id.user_settings: {
                 startActivity(new Intent(getApplicationContext(), UserSettings.class));
+                break;
+            }
+            case R.id.my_chats: {
+                Intent intent = new Intent(getApplicationContext(), ChatsActivity.class);
+                intent.putExtra("mode", "my chats");
+                startActivity(intent);
+                break;
+            }
+            case R.id.my_posts_chats: {
+                Intent intent = new Intent(getApplicationContext(), ChatsActivity.class);
+                intent.putExtra("mode", "my posts chats");
+                startActivity(intent);
                 break;
             }
         }

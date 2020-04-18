@@ -47,6 +47,7 @@ import com.google.firebase.storage.UploadTask;
 
 import com.example.bookofbooks.Models.Post;
 import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
 
 import java.io.StringReader;
 import java.util.ArrayList;
@@ -61,7 +62,7 @@ public class CreatePost extends AppCompatActivity {
     Integer priceValue;
     Button takePicture, choosePicture;
     ImageView imageView;
-    Uri imageUri;
+    Uri imageUri, imageUriBeforeCrop;
     StorageReference fileReference;
     StorageReference mStorageRef;
     FirebaseFirestore mStore;
@@ -186,9 +187,9 @@ public class CreatePost extends AppCompatActivity {
     private void openCamera() {
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.TITLE, "New picture");
-        imageUri = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
+        imageUriBeforeCrop = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
         Intent cameraIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+        cameraIntent.putExtra(MediaStore.EXTRA_OUTPUT, imageUriBeforeCrop);
         startActivityForResult(cameraIntent, OPEN_CAMERA_CODE);
     }
 
@@ -224,10 +225,29 @@ public class CreatePost extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode==GALLERY_PICK_CODE && resultCode==RESULT_OK && data!=null){
-            imageUri = data.getData();
-            Picasso.get().load(imageUri).fit().centerCrop().into(imageView);
+            //imageUri = data.getData();
+            CropImage.activity(data.getData())
+                    .setAspectRatio(1,1)
+                    .setMinCropWindowSize(500,500)
+                    .start(this);
+            //Picasso.get().load(imageUri).fit().centerCrop().into(imageView);
         } else if(requestCode==OPEN_CAMERA_CODE && resultCode==RESULT_OK){
-            Picasso.get().load(imageUri).fit().centerCrop().into(imageView);
+            CropImage.activity(imageUriBeforeCrop)
+                    .setAspectRatio(1,1)
+                    .setMinCropWindowSize(500, 500)
+                    .start(this);
+            //Picasso.get().load(imageUri).fit().centerCrop().into(imageView);
+        }
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE) {
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+            if (resultCode == RESULT_OK) {
+                Uri resultUri = result.getUri();
+                imageUri = resultUri;
+                //Picasso.get().load(imageUri).fit().centerCrop().into(imageView);
+                Picasso.get().load(imageUri).into(imageView);
+            } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+            }
         }
     }
 

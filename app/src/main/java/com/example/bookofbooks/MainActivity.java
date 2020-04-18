@@ -39,7 +39,18 @@ public class MainActivity extends AppCompatActivity  {
         mAuth = FirebaseAuth.getInstance();
         //ako je loginovan odmah ga redirektuje
         if(mAuth.getCurrentUser()!= null){
+            //ovaj deo treba u home page
             if(UsersInfo.getUserInfo() == null) {
+                final String id = mAuth.getUid();
+                FirebaseFirestore.getInstance().collection("users").document(id)
+                        .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        User user = documentSnapshot.toObject(User.class);
+                        UsersInfo.setUsersInfo(user, id);
+                    }
+                });
+            } else if (UsersInfo.getUserID() != mAuth.getCurrentUser().getUid()){
                 final String id = mAuth.getUid();
                 FirebaseFirestore.getInstance().collection("users").document(id)
                         .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {

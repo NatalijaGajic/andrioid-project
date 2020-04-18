@@ -19,6 +19,19 @@
                 android:icon="@drawable/ic_star_black_24dp"
                 android:title="Wishlist" />
 
+
+        </menu>
+    </item>
+    <item android:title="Messages">
+        <menu>
+            <item
+                android:id="@+id/my_chats"
+                android:icon="@drawable/ic_star_black_24dp"
+                android:title="Other chats" />
+            <item
+                android:id="@+id/my_posts_chats"
+                android:icon="@drawable/ic_star_black_24dp"
+                android:title="My posts chats" />
         </menu>
     </item>
     <item

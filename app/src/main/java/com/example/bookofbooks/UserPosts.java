@@ -55,9 +55,7 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
     private FirebaseStorage firebaseStorage;
     private FirebaseAuth mAuth;
     private FirestoreAdapterListener adapter;
-    private ImageView edit, delete;
     private Query query;
-    private PagedList.Config config;
     private SwipeRefreshLayout swipeRefreshLayout;
     FirestoreRecyclerOptions<Post> options;
     ListenerRegistration registration;

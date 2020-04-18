@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
 
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -86,6 +87,23 @@ public class PostDetails extends AppCompatActivity {
 
         });
 
+        sendMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sendMessage();
+            }
+        });
+
+    }
+
+    private void sendMessage() {
+        Intent messageIntent = new Intent(getApplicationContext(), MessageActivity.class);
+        messageIntent.putExtra("username", username.getText());
+        messageIntent.putExtra("postTitle", displayedPost.getTitle());
+        messageIntent.putExtra("postUserId", displayedPost.getUserID());
+        messageIntent.putExtra("postID", postID);
+        messageIntent.putExtra("imageUri", displayedPost.getImageUri());
+        startActivity(messageIntent);
     }
 
     private void addToWishList() {
