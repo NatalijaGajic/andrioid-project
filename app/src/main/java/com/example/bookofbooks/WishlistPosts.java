@@ -1,9 +1,12 @@
 package com.example.bookofbooks;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -85,6 +88,10 @@ public class WishlistPosts extends Fragment implements WishlistPostClickListener
 
     @Override
     public void onItemClick(FavoritePost post, int position) {
-
+        String id = post.getPostID();
+        Log.d("ON ITEM CLICK", "clicked item "+ id);
+        Intent intent = new Intent(getContext(), PostDetails.class);
+        intent.putExtra("postID", id);
+        startActivity(intent);
     }
 }

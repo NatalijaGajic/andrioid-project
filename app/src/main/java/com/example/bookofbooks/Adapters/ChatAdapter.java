@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.bookofbooks.Interface.ChatClickListener;
 import com.example.bookofbooks.Models.Chat;
 import com.example.bookofbooks.R;
 import com.example.bookofbooks.Utility.UsersInfo;
@@ -21,8 +22,10 @@ import java.util.ArrayList;
 
 public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder> {
 
+    private ChatClickListener chatClickListener;
     private ArrayList<Chat> chats;
-    public ChatAdapter(ArrayList<Chat> chats){
+    public ChatAdapter(ArrayList<Chat> chats, ChatClickListener chatClickListener){
+        this.chatClickListener = chatClickListener;
         this.chats = chats;
     }
     @NonNull
@@ -34,8 +37,8 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ChatViewHolder holder, int position) {
-        Chat chat = chats.get(position);
+    public void onBindViewHolder(@NonNull ChatViewHolder holder, final int position) {
+        final Chat chat = chats.get(position);
         Log.d("ChatAdapter", chat.toString());
         if(chat.getOtherUserName().equals(UsersInfo.getUser().getUsername())){
             holder.userName.setText(chat.getPostUserName());
@@ -46,6 +49,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         holder.dateText.setText(chat.getDate());
         holder.postTitle.setText(chat.getPostTitle());
         Picasso.get().load(chat.getImageUri()).fit().centerCrop().into(holder.imageView);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                chatClickListener.onItemClick(chats.get(position));
+            }
+        });
     }
 
     @Override

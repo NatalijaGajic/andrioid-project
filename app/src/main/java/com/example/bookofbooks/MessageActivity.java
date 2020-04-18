@@ -43,7 +43,8 @@ public class MessageActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private TextView username, postTitle;
     private FirebaseFirestore firebaseFirestore;
-    private String extraPostUserID, extraPostID, extraUsername, extraPostTitle, extraPostImage;
+    private String id;
+    private String extraPostUserID, extraPostID, extraUsername, extraPostTitle, extraPostImage, extraOtherUserId, extraOtherUsername;
     private ArrayList<Message> messages = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private MessageAdapter messageAdapter;
@@ -72,11 +73,17 @@ public class MessageActivity extends AppCompatActivity {
         extraUsername = getIntent().getStringExtra("username");
         extraPostTitle = getIntent().getStringExtra("postTitle");
         extraPostImage = getIntent().getStringExtra("imageUri");
+        extraOtherUsername = getIntent().getStringExtra("otherUserName");
 
+        extraOtherUserId = getIntent().getStringExtra("otherUserId");
 
         username = (TextView) findViewById(R.id.username);
         postTitle = (TextView) findViewById(R.id.post_title);
-        username.setText(getIntent().getStringExtra("username"));
+        if(UsersInfo.getUser().getUsername().equals(getIntent().getStringExtra("username"))){
+            username.setText(extraOtherUsername);
+        } else {
+            username.setText(getIntent().getStringExtra("username"));
+        }
         postTitle.setText(getIntent().getStringExtra("postTitle"));
         backImageButton = (ImageButton) findViewById(R.id.back_button);
 
@@ -104,8 +111,15 @@ public class MessageActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        String id = extraPostID+UsersInfo.getUserID();
 
+        if(extraPostUserID.equals(UsersInfo.getUserID())){
+            //user koji je postovao salje poruku(do aktivnosti se doslo iz chat intenta)
+            id = extraPostID + extraOtherUserId;
+        } else {
+            id = extraPostID + UsersInfo.getUserID();
+            extraOtherUserId = UsersInfo.getUserID();
+            extraOtherUsername = UsersInfo.getUser().getUsername();
+        }
 
         DocumentReference documentReference = firebaseFirestore.collection("MessagesSplitCollection").document(id);
 
@@ -117,6 +131,7 @@ public class MessageActivity extends AppCompatActivity {
 
                 } else {
                     Toast.makeText(getApplicationContext(), "Messages asigned", Toast.LENGTH_SHORT).show();
+                    messages.removeAll(messages);
                     messages.addAll(document.getMessages());
                     messageAdapter.notifyDataSetChanged();
                 }
@@ -157,8 +172,6 @@ public class MessageActivity extends AppCompatActivity {
             insertChatToDB(message);
 
             //send message
-
-            final String id = extraPostID+UsersInfo.getUserID();
            firebaseFirestore.collection("MessagesSplitCollection").document(id)
                    .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                @Override
@@ -183,8 +196,8 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     private void insertChatToDB(Message message) {
-        final Chat chat = new Chat(extraPostUserID, UsersInfo.getUserID(),
-                extraPostID, extraPostTitle, extraUsername, UsersInfo.getUser().getUsername(), extraPostImage, message);
+        final Chat chat = new Chat(extraPostUserID, extraOtherUserId,
+                extraPostID, extraPostTitle, extraUsername, extraOtherUsername, extraPostImage, message);
         //make a chat, treba za oba usera
         firebaseFirestore.collection("postChats").document(extraPostUserID)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -212,13 +225,13 @@ public class MessageActivity extends AppCompatActivity {
                 ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
                 if(chatCollection!=null){
                     chatCollection.add(chat);
-                    firebaseFirestore.collection("chats").document(UsersInfo.getUserID())
+                    firebaseFirestore.collection("chats").document(extraOtherUserId)
                             .set(chatCollection);
                 } else {
                     ArrayList<Chat> array = new ArrayList();
                     array.add(chat);
                     ChatCollection input = new ChatCollection(array);
-                    firebaseFirestore.collection("chats").document(UsersInfo.getUserID())
+                    firebaseFirestore.collection("chats").document(extraOtherUserId)
                             .set(input);
                 }
             }

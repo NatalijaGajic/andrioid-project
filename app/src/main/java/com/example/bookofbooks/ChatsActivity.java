@@ -5,11 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.example.bookofbooks.Adapters.ChatAdapter;
+import com.example.bookofbooks.Interface.ChatClickListener;
 import com.example.bookofbooks.Models.Chat;
 import com.example.bookofbooks.Models.ChatCollection;
 import com.example.bookofbooks.Utility.UsersInfo;
@@ -27,7 +29,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class ChatsActivity extends AppCompatActivity {
+public class ChatsActivity extends AppCompatActivity implements ChatClickListener {
 
     private RecyclerView recyclerView;
     private LinearLayoutManager linearLayoutManager;
@@ -44,7 +46,7 @@ public class ChatsActivity extends AppCompatActivity {
         firebaseFirestore = FirebaseFirestore.getInstance();
         mode = getIntent().getStringExtra("mode");
 
-        chatAdapter = new ChatAdapter(chats);
+        chatAdapter = new ChatAdapter(chats, this);
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(chatAdapter);
@@ -102,5 +104,18 @@ public class ChatsActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public void onItemClick(Chat chat) {
+        Intent intent = new Intent(getApplicationContext(), MessageActivity.class);
+        intent.putExtra("postUserId", chat.getPostUserID());
+        intent.putExtra("postID", chat.getPostID());
+        intent.putExtra("username", chat.getPostUserName());
+        intent.putExtra("postTitle", chat.getPostTitle());
+        intent.putExtra("imageUri", chat.getImageUri());
+        intent.putExtra("otherUserId", chat.getOtherUserID());
+        intent.putExtra("otherUserName", chat.getOtherUserName());
+        startActivity(intent);
     }
 }
