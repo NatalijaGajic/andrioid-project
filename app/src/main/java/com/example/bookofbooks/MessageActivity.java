@@ -123,7 +123,7 @@ public class MessageActivity extends AppCompatActivity {
 
         DocumentReference documentReference = firebaseFirestore.collection("MessagesSplitCollection").document(id);
 
-        documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+       /* documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 MessagesSplitCollection document = documentSnapshot.toObject(MessagesSplitCollection.class);
@@ -136,7 +136,7 @@ public class MessageActivity extends AppCompatActivity {
                     messageAdapter.notifyDataSetChanged();
                 }
             }
-        });
+        });*/
 
         documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override

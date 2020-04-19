@@ -44,9 +44,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         if(from.equals(senderID)){
             holder.sendingMessage.setText(message.getMessage());
             holder.sendingMessage.setVisibility(View.VISIBLE);
+            holder.recievedMessage.setVisibility(View.GONE);
         } else {
             holder.recievedMessage.setText(message.getMessage());
             holder.recievedMessage.setVisibility(View.VISIBLE);
+            holder.sendingMessage.setVisibility(View.GONE);
+
+            //set gravity
         }
     }
 

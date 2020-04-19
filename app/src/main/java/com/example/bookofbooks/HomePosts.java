@@ -237,24 +237,28 @@ public class HomePosts extends Fragment implements PostClickListener {
 
     private void searchPosts(String search) {
         adapter.stopListening();
-        if(countryFilter.getText().equals("Contry")){
-            Query query = firebaseFirestore.collection("posts")
+        Query queryForSearch;
+        if(countryFilter.getText().equals("Country")){
+            queryForSearch = firebaseFirestore.collection("posts")
                     .whereEqualTo("searchTitle",search.trim().toLowerCase());
+        } else {
+           queryForSearch = firebaseFirestore.collection("posts")
+                    .whereEqualTo("searchTitle",search.trim().toLowerCase())
+                    .whereEqualTo("user.country", countryFilter.getText().toString());
         }
        // adapter.stopListening();
         Toast.makeText(getContext(),search, Toast.LENGTH_SHORT).show();
-        Query query = firebaseFirestore.collection("posts")
-                .whereEqualTo("searchTitle",search.trim().toLowerCase())
-                .whereEqualTo("user.country", countryFilter.getText().toString());
+
 
         //RecyclerOption
         PagedList.Config config = new PagedList.Config.Builder()
                 .setInitialLoadSizeHint(10)
                 .setPageSize(1)
                 .build();
+
         FirestorePagingOptions<Post> options = new FirestorePagingOptions.Builder<Post>()
                 .setLifecycleOwner(HomePosts.this)
-                .setQuery(query, config, new SnapshotParser<Post>() {
+                .setQuery(queryForSearch, config, new SnapshotParser<Post>() {
                     @NonNull
                     @Override
                     public Post parseSnapshot(@NonNull DocumentSnapshot snapshot) {
