@@ -161,6 +161,7 @@ public class PostDetails extends AppCompatActivity {
                         description.setText(displayedPost.getDescription());
                         String dateString = TimestampConverter.timestampToDate(displayedPost.getDate().toString());
                         date.setText(dateString);
+                       country.setText(displayedPost.getUser().getCountry());
                         username.setText(displayedPost.getUser().getFirstName()+" "+displayedPost.getUser().getLastName());
                         Picasso.get().load(displayedPost.getImageUri()).into(image);
                     }
