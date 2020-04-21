@@ -6,10 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -48,6 +50,8 @@ public class MessageActivity extends AppCompatActivity {
     private ArrayList<Message> messages = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private MessageAdapter messageAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
+    private static int documentFromCollection = 0;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -86,10 +90,12 @@ public class MessageActivity extends AppCompatActivity {
         }
         postTitle.setText(getIntent().getStringExtra("postTitle"));
         backImageButton = (ImageButton) findViewById(R.id.back_button);
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh_message);
 
         backImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                clearNewMessagesForUser();
                 finish();
             }
         });
@@ -106,7 +112,22 @@ public class MessageActivity extends AppCompatActivity {
         linearLayoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setAdapter(messageAdapter);
+
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                //add messages from collection at id {documentFromCollection} to messages and notify
+                //loadMoreMessages();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
     }
+
+    private void loadMoreMessages() {
+        //dodaj na indeks nula
+        //  recyclerView.scrollToPosition(messages.size()-documentFromCollection*10);
+    }
+
 
     @Override
     protected void onStart() {
@@ -121,23 +142,55 @@ public class MessageActivity extends AppCompatActivity {
             extraOtherUsername = UsersInfo.getUser().getUsername();
         }
 
-        DocumentReference documentReference = firebaseFirestore.collection("MessagesSplitCollection").document(id);
+        loadMessages();
+        clearNewMessagesForUser();
 
-       /* documentReference.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                MessagesSplitCollection document = documentSnapshot.toObject(MessagesSplitCollection.class);
-                if(document==null){
+    }
 
-                } else {
-                    Toast.makeText(getApplicationContext(), "Messages asigned", Toast.LENGTH_SHORT).show();
-                    messages.removeAll(messages);
-                    messages.addAll(document.getMessages());
-                    messageAdapter.notifyDataSetChanged();
+    private void clearNewMessagesForUser() {
+        if(extraOtherUserId.equals(UsersInfo.getUserID())){
+            Toast.makeText(getApplicationContext(), "Brise new u chats", Toast.LENGTH_SHORT).show();
+            firebaseFirestore.collection("chats").document(extraOtherUserId)
+                    .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
+                    if(chatCollection!=null){
+                        int index = chatCollection.getChat(extraPostID);
+                        if(index!=-1){
+                            int newmess = chatCollection.getChats().get(index).getNewMessages();
+                            chatCollection.setNewMessages(chatCollection.getNewMessages()-newmess);
+                            chatCollection.getChats().get(index).setNewMessages(0);
+                            firebaseFirestore.collection("chats").document(extraOtherUserId)
+                                    .set(chatCollection);
+                        }
+                    }
                 }
-            }
-        });*/
+            });
+        }else {
+            Toast.makeText(getApplicationContext(), "Brise new u postchats", Toast.LENGTH_SHORT).show();
+            firebaseFirestore.collection("postChats").document(UsersInfo.getUserID())
+                    .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                @Override
+                public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
+                    if(chatCollection!=null){
+                        int index = chatCollection.getChat(extraPostID);
+                        if(index!=-1){
+                            int newmess = chatCollection.getChats().get(index).getNewMessages();
+                            chatCollection.setNewMessages(chatCollection.getNewMessages()-newmess);
+                            chatCollection.getChats().get(index).setNewMessages(0);
+                            firebaseFirestore.collection("postChats").document(UsersInfo.getUserID())
+                                    .set(chatCollection);
+                        }
+                    }
+                }
+            });
+        }
+    }
 
+    private void loadMessages(){
+        DocumentReference documentReference = firebaseFirestore.collection("MessagesSplitCollection").document(id);
         documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot snapshot,
@@ -153,9 +206,11 @@ public class MessageActivity extends AppCompatActivity {
                 if (snapshot != null && snapshot.exists()) {
                     Log.d("SNAPSHOT LISTENER", source + " data: " + snapshot.getData());
                     MessagesSplitCollection document = snapshot.toObject(MessagesSplitCollection.class);
-                    messages.removeAll(messages);
+                   // messages.removeAll(messages);
+                    messages.clear();
                     messages.addAll(document.getMessages());
                     messageAdapter.notifyDataSetChanged();
+                    recyclerView.scrollToPosition(messages.size()-1);
                 } else {
                     Log.d("SNAPSHOT LISTENER", source + " data: null");
                 }
@@ -168,7 +223,12 @@ public class MessageActivity extends AppCompatActivity {
         if(text.isEmpty()){
             //not sending
         } else {
-            final Message message = new Message(UsersInfo.getUserID(), text.trim());
+            final Message message;
+            if(UsersInfo.getUserID().equals(extraPostUserID)){
+                message = new Message(UsersInfo.getUserID(), extraOtherUserId, text.trim());
+            } else {
+                message = new Message(UsersInfo.getUserID(), extraPostUserID, text.trim());
+            }
             insertChatToDB(message);
 
             //send message
@@ -196,6 +256,7 @@ public class MessageActivity extends AppCompatActivity {
     }
 
     private void insertChatToDB(Message message) {
+
         final Chat chat = new Chat(extraPostUserID, extraOtherUserId,
                 extraPostID, extraPostTitle, extraUsername, extraOtherUsername, extraPostImage, message);
         //make a chat, treba za oba usera
@@ -205,32 +266,62 @@ public class MessageActivity extends AppCompatActivity {
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
                 if(chatCollection!=null){
-                    chatCollection.add(chat);
+                    if(!UsersInfo.getUserID().equals(extraPostUserID)){
+                        //onaj ko salje poruku je drugi user, treba zapisati poruke kao neprocitane
+                        chatCollection.add(chat, true);
+                        chatCollection.setNewMessages(chatCollection.getNewMessages()+1);
+                    } else {
+                        int oldMess = chatCollection.add(chat, false);
+                        chatCollection.setNewMessages(chatCollection.getNewMessages()-oldMess);
+                    }
                     firebaseFirestore.collection("postChats").document(extraPostUserID)
                             .set(chatCollection);
                 } else {
+                    if(!UsersInfo.getUserID().equals(extraPostUserID)){
+                        //onaj ko salje poruku je druga osoba, treba zapisati poruke
+                        chat.setNewMessages(1);
+                    }
                     ArrayList<Chat> array = new ArrayList();
                     array.add(chat);
                     ChatCollection input = new ChatCollection(array);
+                    if(!UsersInfo.getUserID().equals(extraPostUserID)){
+                        //onaj ko salje poruku je druga osoba, treba zapisati poruke
+                        input.setNewMessages(1);
+                    }
                     firebaseFirestore.collection("postChats").document(extraPostUserID)
                             .set(input);
                 }
             }
         });
 
-        firebaseFirestore.collection("chats").document(UsersInfo.getUserID())
+        firebaseFirestore.collection("chats").document(extraOtherUserId)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
                 if(chatCollection!=null){
-                    chatCollection.add(chat);
+                    if(!UsersInfo.getUserID().equals(extraOtherUserId)){
+                        //onaj ko salje poruku je drugi user, treba zapisati poruke kao neprocitane
+                        chatCollection.add(chat, true);
+                        chatCollection.setNewMessages(chatCollection.getNewMessages()+1);
+                    } else {
+                        int oldMess = chatCollection.add(chat, false);
+                        chatCollection.setNewMessages(chatCollection.getNewMessages()-oldMess);
+                    }
                     firebaseFirestore.collection("chats").document(extraOtherUserId)
                             .set(chatCollection);
                 } else {
+                    if(!UsersInfo.getUserID().equals(extraOtherUserId)){
+                        //onaj ko salje poruku je druga osoba, treba zapisati poruke
+                        chat.setNewMessages(1);
+                    }
                     ArrayList<Chat> array = new ArrayList();
                     array.add(chat);
                     ChatCollection input = new ChatCollection(array);
+                    if(!UsersInfo.getUserID().equals(extraOtherUserId)){
+                        //onaj ko salje poruku je druga osoba, treba zapisati poruke
+                        input.setNewMessages(1);
+                    }
                     firebaseFirestore.collection("chats").document(extraOtherUserId)
                             .set(input);
                 }
@@ -238,4 +329,5 @@ public class MessageActivity extends AppCompatActivity {
         });
 
     }
+
 }

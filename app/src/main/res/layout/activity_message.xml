@@ -13,12 +13,18 @@
         android:background="@color/colorPrimary"
         android:id="@+id/chat_toolbar"
         android:layout_alignParentTop="true"/>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/message_recycler_view"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_below="@id/chat_toolbar"/>
-
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+            android:id="@+id/swipe_refresh_message"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/chat_toolbar"
+            android:layout_marginBottom="50dp">
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/message_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/chat_toolbar"/>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <LinearLayout
         android:id="@+id/linear_lay"

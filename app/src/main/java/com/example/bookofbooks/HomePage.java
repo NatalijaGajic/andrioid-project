@@ -9,13 +9,19 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.example.bookofbooks.Models.Chat;
+import com.example.bookofbooks.Models.ChatCollection;
 import com.example.bookofbooks.Models.User;
 import com.example.bookofbooks.Utility.UsersInfo;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -27,6 +33,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 public class HomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, HomePosts.onFragmentButtonSelected {
 
     private Button logOutButton;
+    private ImageView notificationsImageView;
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
     Toolbar toolbar;
@@ -34,21 +41,48 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     NavigationView navigationView;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
+    private FirebaseFirestore firebaseFirestore;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_page);
         toolbar = findViewById(R.id.drawer_toolbar);
         setSupportActionBar(toolbar);
+        notificationsImageView = (ImageView) findViewById(R.id.notification_bell);
+        notificationsImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(getApplicationContext(), "Clicked notifications", Toast.LENGTH_SHORT).show();
+                showNotifications();
+            }
+        });
         drawerLayout = findViewById(R.id.drawer);
         navigationView = findViewById(R.id.navigationView);
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
-        drawerLayout.addDrawerListener(actionBarDrawerToggle);
+
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close){
+            @Override
+            public void onDrawerStateChanged(int newState) {
+                if((newState == DrawerLayout.STATE_SETTLING || newState == DrawerLayout.STATE_DRAGGING) && drawerLayout.isDrawerOpen(GravityCompat.START)==false){
+                    Toast.makeText(getApplicationContext(), "Opening", Toast.LENGTH_SHORT).show();
+                    invalidateOptionsMenu();
+                    onPrepareOptionsMenu(null);
+                }
+                super.onDrawerStateChanged(newState);
+            }
+        };
+
+
+       drawerLayout.addDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.setDrawerIndicatorEnabled(true);
         actionBarDrawerToggle.syncState();
+
+
+
         navigationView.setNavigationItemSelectedListener(this);
 
+
         mAuth = FirebaseAuth.getInstance();
+        firebaseFirestore = FirebaseFirestore.getInstance();
 
         if(UsersInfo.getUserInfo() == null) {
             final String id = mAuth.getUid();
@@ -79,6 +113,55 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         fragmentTransaction.commit();
 
 
+    }
+
+    private void showNotifications() {
+        fragmentManager = getSupportFragmentManager();
+        fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.container_fragment, new UserPosts());
+        fragmentTransaction.commit();
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+
+        Menu menuNav = navigationView.getMenu();
+        final MenuItem myChats = menuNav.findItem(R.id.my_chats);
+        final MenuItem myPostChats = menuNav.findItem(R.id.my_posts_chats);
+        String id = mAuth.getUid();
+        firebaseFirestore.collection("chats").document(id)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
+                        if(chatCollection!=null){
+                            Integer messages = (Integer) chatCollection.getNewMessages();
+                            if(messages!=0){
+                                myChats.setTitle("Other chats "+"("+messages.toString()+")");
+                            }else if(messages == 0){
+                                myChats.setTitle("Other chats");
+                            }
+                        }
+                    }
+                });
+        firebaseFirestore.collection("postChats").document(id)
+                .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
+                if(chatCollection!=null){
+                    Integer messages = (Integer) chatCollection.getNewMessages();
+                    if(messages!=0){
+                        myPostChats.setTitle("My posts chats "+"("+messages.toString()+")");
+                    }else if(messages == 0){
+                        myPostChats.setTitle("My posts chats");
+
+                    }
+                }
+            }
+        });
+
+        return super.onPrepareOptionsMenu(menu);
     }
 
     @Override

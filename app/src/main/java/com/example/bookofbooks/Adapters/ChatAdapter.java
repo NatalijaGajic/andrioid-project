@@ -49,6 +49,12 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         holder.dateText.setText(chat.getDate());
         holder.postTitle.setText(chat.getPostTitle());
         Picasso.get().load(chat.getImageUri()).fit().centerCrop().into(holder.imageView);
+        if(chat.getNewMessages()!=0){
+            holder.newMessages.setText(chat.getNewMessages().toString());
+            holder.newMessages.setVisibility(View.VISIBLE);
+        }else {
+            holder.newMessages.setVisibility(View.GONE);
+        }
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,7 +71,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     public class ChatViewHolder extends RecyclerView.ViewHolder{
 
-        public TextView postTitle, userName, dateText, message;
+        public TextView postTitle, userName, dateText, message, newMessages;
         public ImageView imageView;
         public ChatViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -74,6 +80,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
             dateText = itemView.findViewById(R.id.chat_date);
             message = itemView.findViewById(R.id.chat_message);
             imageView = itemView.findViewById(R.id.chat_image);
+            newMessages = itemView.findViewById(R.id.new_messages_text);
         }
     }
 }

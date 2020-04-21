@@ -6,6 +6,7 @@ import java.util.Calendar;
 
 public class Chat {
     private ArrayList<String> users = new ArrayList<>();
+    private Integer newMessages = 0;
     private Message recentText;
     private String postID;
     private String postTitle;
@@ -114,5 +115,13 @@ public class Chat {
 
     public String toString(){
         return postTitle +" " +otherUserName+ " " + postUserName;
+    }
+
+    public Integer getNewMessages() {
+        return newMessages;
+    }
+
+    public void setNewMessages(Integer newMessages) {
+        this.newMessages = newMessages;
     }
 }

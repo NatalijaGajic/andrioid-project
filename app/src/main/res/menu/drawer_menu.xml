@@ -22,7 +22,7 @@
 
         </menu>
     </item>
-    <item android:title="Messages">
+    <item android:title="Messages" android:id="@+id/messages_menu">
         <menu>
             <item
                 android:id="@+id/my_chats"

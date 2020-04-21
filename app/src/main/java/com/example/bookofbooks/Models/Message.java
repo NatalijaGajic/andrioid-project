@@ -8,12 +8,14 @@ public class Message {
     private String message;
     private String date;
     private String time;
+    private String to;
 
     public Message() {}
 
 
-    public Message(String from, String message) {
+    public Message(String from, String to, String message) {
         this.from = from;
+        this.to = to;
         this.message = message;
         Calendar dateToCall = Calendar.getInstance();
         SimpleDateFormat currentDateFormat = new SimpleDateFormat("MMM dd, yyyy");
@@ -53,5 +55,13 @@ public class Message {
 
     public void setTime(String time) {
         this.time = time;
+    }
+
+    public String getTo() {
+        return to;
+    }
+
+    public void setTo(String to) {
+        this.to = to;
     }
 }
