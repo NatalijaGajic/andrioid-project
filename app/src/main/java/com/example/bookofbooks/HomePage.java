@@ -1,6 +1,7 @@
 package com.example.bookofbooks;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -12,12 +13,14 @@ import androidx.fragment.app.FragmentTransaction;
 import android.app.ActionBar;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bookofbooks.Models.Chat;
@@ -27,13 +30,18 @@ import com.example.bookofbooks.Utility.UsersInfo;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 
 public class HomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, HomePosts.onFragmentButtonSelected {
 
     private Button logOutButton;
     private ImageView notificationsImageView;
+    private TextView newNotifications;
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle actionBarDrawerToggle;
     Toolbar toolbar;
@@ -49,6 +57,8 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         toolbar = findViewById(R.id.drawer_toolbar);
         setSupportActionBar(toolbar);
         notificationsImageView = (ImageView) findViewById(R.id.notification_bell);
+        newNotifications = (TextView) findViewById(R.id.notification_text_view);
+
         notificationsImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,14 +122,51 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         fragmentTransaction.add(R.id.container_fragment, new HomePosts());
         fragmentTransaction.commit();
 
+        setListenerForNotifications();
+
 
     }
 
+    private void setListenerForNotifications() {
+        String id = mAuth.getCurrentUser().getUid();
+        firebaseFirestore.collection("users").document(id)
+                .collection("notifications").addSnapshotListener(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
+                                @Nullable FirebaseFirestoreException e) {
+                if (e != null) {
+                    Log.w("NOTIFICATION LISTENER", "listen:error", e);
+                    return;
+                }
+
+                Integer i = 0;
+                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
+                    if (dc.getType() == DocumentChange.Type.ADDED) {
+                        i++;
+                        Log.d("NOTIFICATION LISTENER", "New city: " + dc.getDocument().getData());
+                    }
+
+                }
+                if(i!=0){
+                    Integer j =  Integer.parseInt(newNotifications.getText().toString());
+                    i = i+j;
+                    newNotifications.setText(i.toString());
+                    newNotifications.setVisibility(View.VISIBLE);
+                }else{
+                    newNotifications.setVisibility(View.GONE);
+                }
+
+            }
+        });
+    }
+
     private void showNotifications() {
-        fragmentManager = getSupportFragmentManager();
+        newNotifications.setText("0");
+        newNotifications.setVisibility(View.GONE);
+       /* fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.container_fragment, new UserPosts());
-        fragmentTransaction.commit();
+        fragmentTransaction.commit();*/
     }
 
     @Override
