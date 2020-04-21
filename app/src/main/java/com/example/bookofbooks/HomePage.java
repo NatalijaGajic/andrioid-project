@@ -142,7 +142,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                     Infos info = documentSnapshot.toObject(Infos.class);
-                    if(info!=null){
+                    if(info!=null && info.getUnseenCount()>0){
                         Integer i = info.getUnseenCount();
                         newNotifications.setText(i.toString());
                         newNotifications.setVisibility(View.VISIBLE);
@@ -193,10 +193,10 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         Infos info = new Infos(0);
         firebaseFirestore.collection("users").document(UsersInfo.getUserID())
                 .collection("infos").document(UsersInfo.getUserID()).set(info);
-       /* fragmentManager = getSupportFragmentManager();
+        fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.container_fragment, new UserPosts());
-        fragmentTransaction.commit();*/
+        fragmentTransaction.replace(R.id.container_fragment, new NotificationsFragment());
+        fragmentTransaction.commit();
     }
 
     @Override

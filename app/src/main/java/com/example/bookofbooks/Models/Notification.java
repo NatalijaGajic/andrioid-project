@@ -7,6 +7,7 @@ public class Notification {
     private Integer usersFollowing;
     private Date timestamp;
     private Boolean seen;
+    private String postID;
 
     public Notification(){
 
@@ -90,5 +91,13 @@ public class Notification {
 
     public void setSeen(Boolean seen) {
         this.seen = seen;
+    }
+
+    public String getPostID() {
+        return postID;
+    }
+
+    public void setPostID(String postID) {
+        this.postID = postID;
     }
 }

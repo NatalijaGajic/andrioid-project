@@ -285,18 +285,6 @@ public class HomePosts extends Fragment implements PostClickListener {
         }
     }
 
-   /* @Override
-    public void onStart() {
-        super.onStart();
-        adapter.startListening();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        adapter.stopListening();
-    }*/
-
     @Override
     public void onItemClick(DocumentSnapshot documentSnapshot, int position) {
         String id = documentSnapshot.getId();
