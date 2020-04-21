@@ -12,6 +12,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.app.ActionBar;
 import android.content.Intent;
+import android.icu.text.IDNA;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -25,9 +26,13 @@ import android.widget.Toast;
 
 import com.example.bookofbooks.Models.Chat;
 import com.example.bookofbooks.Models.ChatCollection;
+import com.example.bookofbooks.Models.Infos;
+import com.example.bookofbooks.Models.Notification;
 import com.example.bookofbooks.Models.User;
 import com.example.bookofbooks.Utility.UsersInfo;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
@@ -35,6 +40,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 
 public class HomePage extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, HomePosts.onFragmentButtonSelected {
@@ -129,6 +135,23 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
 
     private void setListenerForNotifications() {
         String id = mAuth.getCurrentUser().getUid();
+        //get notifications that are not seen
+        firebaseFirestore.collection("users").document(id).collection("infos")
+                .document(id).get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                    Infos info = documentSnapshot.toObject(Infos.class);
+                    if(info!=null){
+                        Integer i = info.getUnseenCount();
+                        newNotifications.setText(i.toString());
+                        newNotifications.setVisibility(View.VISIBLE);
+                    }else {
+                        newNotifications.setText("0");
+                        newNotifications.setVisibility(View.GONE);
+                    }
+            }
+        });
+
         firebaseFirestore.collection("users").document(id)
                 .collection("notifications").addSnapshotListener(new EventListener<QuerySnapshot>() {
             @Override
@@ -163,6 +186,10 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
     private void showNotifications() {
         newNotifications.setText("0");
         newNotifications.setVisibility(View.GONE);
+        //TODO sve notifikacije treba da se postave da su seen u notifications activityju
+        Infos info = new Infos(0);
+        firebaseFirestore.collection("users").document(UsersInfo.getUserID())
+                .collection("infos").document(UsersInfo.getUserID()).set(info);
        /* fragmentManager = getSupportFragmentManager();
         fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.container_fragment, new UserPosts());
