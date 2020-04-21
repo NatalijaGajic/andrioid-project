@@ -36,6 +36,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -152,33 +153,35 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             }
         });
 
-        firebaseFirestore.collection("users").document(id)
-                .collection("notifications").addSnapshotListener(new EventListener<QuerySnapshot>() {
+
+        DocumentReference documentReference = firebaseFirestore.collection("users").document(id).collection("infos")
+                .document(id);
+        documentReference.addSnapshotListener(new EventListener<DocumentSnapshot>() {
             @Override
-            public void onEvent(@Nullable QuerySnapshot queryDocumentSnapshots,
-                                @Nullable FirebaseFirestoreException e) {
+            public void onEvent(@Nullable DocumentSnapshot snapshot, @Nullable FirebaseFirestoreException e) {
                 if (e != null) {
-                    Log.w("NOTIFICATION LISTENER", "listen:error", e);
+                    Log.w("SNAPSHOT LISTENER", "Listen failed.", e);
                     return;
                 }
 
-                Integer i = 0;
-                for (DocumentChange dc : queryDocumentSnapshots.getDocumentChanges()) {
-                    if (dc.getType() == DocumentChange.Type.ADDED) {
-                        i++;
-                        Log.d("NOTIFICATION LISTENER", "New city: " + dc.getDocument().getData());
+                String source = snapshot != null && snapshot.getMetadata().hasPendingWrites()
+                        ? "Local" : "Server";
+
+                if (snapshot != null && snapshot.exists()) {
+                    Log.d("SNAPSHOT LISTENER", source + " data: " + snapshot.getData());
+                    Infos document = snapshot.toObject(Infos.class);
+                    Integer i = document.getUnseenCount();
+                    if(i!=0){
+                        newNotifications.setText(i.toString());
+                        newNotifications.setVisibility(View.VISIBLE);
+                    }else {
+                        newNotifications.setText("0");
+                        newNotifications.setVisibility(View.GONE);
                     }
 
+                } else {
+                    Log.d("SNAPSHOT LISTENER", source + " data: null");
                 }
-                if(i!=0){
-                    Integer j =  Integer.parseInt(newNotifications.getText().toString());
-                    i = i+j;
-                    newNotifications.setText(i.toString());
-                    newNotifications.setVisibility(View.VISIBLE);
-                }else{
-                    newNotifications.setVisibility(View.GONE);
-                }
-
             }
         });
     }
