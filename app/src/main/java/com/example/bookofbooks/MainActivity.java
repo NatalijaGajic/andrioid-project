@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.bookofbooks.Models.Token;
 import com.example.bookofbooks.Models.User;
 import com.example.bookofbooks.Utility.UsersInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -19,6 +20,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class MainActivity extends AppCompatActivity  {
 
@@ -61,6 +64,7 @@ public class MainActivity extends AppCompatActivity  {
                     }
                 });
             }
+            getToken();
            startActivity(new Intent(getApplicationContext(), HomePage.class));
             finish();
         }
@@ -80,6 +84,20 @@ public class MainActivity extends AppCompatActivity  {
         });
     }
 
+    private void getToken() {
+        final FirebaseFirestore firebaseFirestore = FirebaseFirestore.getInstance();
+        final String id = mAuth.getUid();
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                String tokenString = instanceIdResult.getToken();
+               // Toast.makeText(getApplicationContext(), "Token " + tokenString, Toast.LENGTH_SHORT).show();
+                Token token = new Token(tokenString);
+                firebaseFirestore.collection("tokens").document(id).set(token);
+            }
+        });
+    }
+
     private void userLogin() {
         if(validateForm()){
             String email = emailLayout.getEditText().getText().toString();
@@ -88,6 +106,9 @@ public class MainActivity extends AppCompatActivity  {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if(task.isSuccessful()){
+                        //get token
+                      getToken();
+
                         Intent homePage = new Intent(MainActivity.this, HomePage.class);
                         //homePage.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(homePage);

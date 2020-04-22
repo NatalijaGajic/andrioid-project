@@ -213,10 +213,14 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
                         ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
                         if(chatCollection!=null){
                             Integer messages = (Integer) chatCollection.getNewMessages();
-                            if(messages!=0){
+                            if(messages>0){
                                 myChats.setTitle("Other chats "+"("+messages.toString()+")");
                             }else if(messages == 0){
                                 myChats.setTitle("Other chats");
+                            } else {
+                                myChats.setTitle("Other chats");
+                                /*chatCollection.setNewMessages(0);
+                                * ako je negativno vrati na nulu*/
                             }
                         }
                     }
@@ -228,11 +232,15 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
                 ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
                 if(chatCollection!=null){
                     Integer messages = (Integer) chatCollection.getNewMessages();
-                    if(messages!=0){
+                    if(messages>0){
                         myPostChats.setTitle("My posts chats "+"("+messages.toString()+")");
                     }else if(messages == 0){
                         myPostChats.setTitle("My posts chats");
-
+                    }
+                    else {
+                        myChats.setTitle("Other chats");
+                        /*chatCollection.setNewMessages(0);
+                         * ako je negativno vrati na nulu*/
                     }
                 }
             }

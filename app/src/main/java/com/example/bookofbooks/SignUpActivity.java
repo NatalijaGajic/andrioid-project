@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.example.bookofbooks.Models.Token;
+import com.example.bookofbooks.Utility.UsersInfo;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -28,6 +30,8 @@ import java.util.Arrays;
 import java.util.regex.Pattern;
 
 import com.example.bookofbooks.Models.User;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -120,8 +124,24 @@ public class SignUpActivity extends AppCompatActivity {
         });
     }
 
+    private void getToken() {
+        final String id = mAuth.getUid();
+        FirebaseInstanceId.getInstance().getInstanceId().addOnSuccessListener(new OnSuccessListener<InstanceIdResult>() {
+            @Override
+            public void onSuccess(InstanceIdResult instanceIdResult) {
+                String tokenString = instanceIdResult.getToken();
+                //Toast.makeText(getApplicationContext(), "Token " + tokenString, Toast.LENGTH_SHORT).show();
+                Token token = new Token(tokenString);
+                fStore.collection("tokens").document(id).set(token);
+            }
+        });
+    }
+
     private void sendUserToMainPage() {
-        Intent mainPage = new Intent(this, HomePage.class);
+        //get Token
+       getToken();
+
+       Intent mainPage = new Intent(this, HomePage.class);
         //mainPage.setFlags()
         startActivity(mainPage);
         finish();

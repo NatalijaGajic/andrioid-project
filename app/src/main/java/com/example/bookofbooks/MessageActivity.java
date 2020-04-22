@@ -149,6 +149,7 @@ public class MessageActivity extends AppCompatActivity {
 
     private void clearNewMessagesForUser() {
         if(extraOtherUserId.equals(UsersInfo.getUserID())){
+            //salje otherUser, brisu se newMessages u chats kolekciji
             Toast.makeText(getApplicationContext(), "Brise new u chats", Toast.LENGTH_SHORT).show();
             firebaseFirestore.collection("chats").document(extraOtherUserId)
                     .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -156,9 +157,11 @@ public class MessageActivity extends AppCompatActivity {
                 public void onSuccess(DocumentSnapshot documentSnapshot) {
                     ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
                     if(chatCollection!=null){
+                        //index chata u kolekciji
                         int index = chatCollection.getChat(extraPostID);
                         if(index!=-1){
                             int newmess = chatCollection.getChats().get(index).getNewMessages();
+                            //oduzimaju se poruke chata, poruke iz chata 0
                             chatCollection.setNewMessages(chatCollection.getNewMessages()-newmess);
                             chatCollection.getChats().get(index).setNewMessages(0);
                             firebaseFirestore.collection("chats").document(extraOtherUserId)
@@ -168,6 +171,7 @@ public class MessageActivity extends AppCompatActivity {
                 }
             });
         }else {
+            //salje postUser, brisu se newMessages u postChats kolekciji
             Toast.makeText(getApplicationContext(), "Brise new u postchats", Toast.LENGTH_SHORT).show();
             firebaseFirestore.collection("postChats").document(UsersInfo.getUserID())
                     .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -221,9 +225,10 @@ public class MessageActivity extends AppCompatActivity {
     private void sendMessage() {
         String text = editText.getText().toString();
         if(text.isEmpty()){
-            //not sending
+            //ne salje se poruka
         } else {
             final Message message;
+            //proveravamo od koga je, kome poruka
             if(UsersInfo.getUserID().equals(extraPostUserID)){
                 message = new Message(UsersInfo.getUserID(), extraOtherUserId, text.trim());
             } else {
@@ -241,7 +246,6 @@ public class MessageActivity extends AppCompatActivity {
                         document.add(message);
                         firebaseFirestore.collection("MessagesSplitCollection").document(id)
                                 .set(document);
-                        //dodaj na kraj niza
                     }else {
                         ArrayList<Message> array = new ArrayList<>();
                         array.add(message);
@@ -259,33 +263,36 @@ public class MessageActivity extends AppCompatActivity {
 
         final Chat chat = new Chat(extraPostUserID, extraOtherUserId,
                 extraPostID, extraPostTitle, extraUsername, extraOtherUsername, extraPostImage, message);
-        //make a chat, treba za oba usera
+        //chat usera ciji je post u postChats
         firebaseFirestore.collection("postChats").document(extraPostUserID)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
                 if(chatCollection!=null){
+                    //vec postoje chatovi
                     if(!UsersInfo.getUserID().equals(extraPostUserID)){
-                        //onaj ko salje poruku je drugi user, treba zapisati poruke kao neprocitane
+                        //salje poruku drugi user, poruke neprocitane, dodati newMessages
                         chatCollection.add(chat, true);
                         chatCollection.setNewMessages(chatCollection.getNewMessages()+1);
                     } else {
+                        //salje poruku isti user, poruke procitane, oduzeti newMessages
                         int oldMess = chatCollection.add(chat, false);
                         chatCollection.setNewMessages(chatCollection.getNewMessages()-oldMess);
                     }
                     firebaseFirestore.collection("postChats").document(extraPostUserID)
                             .set(chatCollection);
                 } else {
+                    //prvi chat koji se pravi
                     if(!UsersInfo.getUserID().equals(extraPostUserID)){
-                        //onaj ko salje poruku je druga osoba, treba zapisati poruke
+                        //salje poruku drugi user, poruke neprocitane, dodati newMessages
                         chat.setNewMessages(1);
                     }
                     ArrayList<Chat> array = new ArrayList();
                     array.add(chat);
                     ChatCollection input = new ChatCollection(array);
                     if(!UsersInfo.getUserID().equals(extraPostUserID)){
-                        //onaj ko salje poruku je druga osoba, treba zapisati poruke
+                        //salje poruku drugi user, poruke neprocitane, dodati newMessages
                         input.setNewMessages(1);
                     }
                     firebaseFirestore.collection("postChats").document(extraPostUserID)
@@ -294,6 +301,7 @@ public class MessageActivity extends AppCompatActivity {
             }
         });
 
+        //chat drugog usera
         firebaseFirestore.collection("chats").document(extraOtherUserId)
                 .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
             @Override
@@ -301,10 +309,11 @@ public class MessageActivity extends AppCompatActivity {
                 ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
                 if(chatCollection!=null){
                     if(!UsersInfo.getUserID().equals(extraOtherUserId)){
-                        //onaj ko salje poruku je drugi user, treba zapisati poruke kao neprocitane
+                        //salje poruku drugi user, poruke neprocitane, dodati newMessages
                         chatCollection.add(chat, true);
                         chatCollection.setNewMessages(chatCollection.getNewMessages()+1);
                     } else {
+                        //salje poruku isti user, poruke procitane, oduzeti newMessages
                         int oldMess = chatCollection.add(chat, false);
                         chatCollection.setNewMessages(chatCollection.getNewMessages()-oldMess);
                     }
@@ -312,14 +321,14 @@ public class MessageActivity extends AppCompatActivity {
                             .set(chatCollection);
                 } else {
                     if(!UsersInfo.getUserID().equals(extraOtherUserId)){
-                        //onaj ko salje poruku je druga osoba, treba zapisati poruke
+                        //salje poruku drugi user, poruke neprocitane, dodati newMessages
                         chat.setNewMessages(1);
                     }
                     ArrayList<Chat> array = new ArrayList();
                     array.add(chat);
                     ChatCollection input = new ChatCollection(array);
                     if(!UsersInfo.getUserID().equals(extraOtherUserId)){
-                        //onaj ko salje poruku je druga osoba, treba zapisati poruke
+                        //salje poruku drugi user, poruke neprocitane, dodati newMessages
                         input.setNewMessages(1);
                     }
                     firebaseFirestore.collection("chats").document(extraOtherUserId)

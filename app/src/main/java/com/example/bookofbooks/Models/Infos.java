@@ -2,7 +2,6 @@ package com.example.bookofbooks.Models;
 
 public class Infos {
     private Integer unseenCount;
-
     public Infos(){
 
     }
@@ -18,4 +17,5 @@ public class Infos {
     public void setUnseenCount(Integer unseenCount) {
         this.unseenCount = unseenCount;
     }
+
 }

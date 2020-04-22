@@ -29,13 +29,17 @@ public class ChatCollection {
             i++;
         }
         if(addNewMessages){
+            //ukoliko treba da se dodaju nove poruke u chat
             if(newMessages != -1){
                 chat.setNewMessages(newMessages+1);
             }else {
                 chat.setNewMessages(1);
             }
+        }else {
+            chat.setNewMessages(0);
         }
         chats.add(0,chat);
+        //da bi se oduzelo od ukupno novih poruka
         if(newMessages!=-1){
             return newMessages;
         }else{
