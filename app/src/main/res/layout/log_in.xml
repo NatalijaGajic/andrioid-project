@@ -10,7 +10,7 @@
         android:background="@color/blue"
         android:textColor="@color/dirty_white"
         android:textSize="35dp"
-        android:text="Booksterz"
+        android:text="BookStore"
         android:textAlignment="center"
         android:paddingTop="10dp"/>
     <com.google.android.material.textfield.TextInputLayout

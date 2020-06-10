@@ -59,7 +59,7 @@ public class ChatsActivity extends AppCompatActivity implements ChatClickListene
         super.onStart();
         if(mode.equals("my chats")){
             chatCollectionName = "chats";
-            Toast.makeText(getApplicationContext(), "Chats collection", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(getApplicationContext(), "Chats collection", Toast.LENGTH_SHORT).show();
         } else {
             chatCollectionName = "postChats";
         }
@@ -71,9 +71,9 @@ public class ChatsActivity extends AppCompatActivity implements ChatClickListene
             public void onSuccess(DocumentSnapshot documentSnapshot) {
                 ChatCollection document = documentSnapshot.toObject(ChatCollection.class);
                 if(document==null){
-                    Toast.makeText(getApplicationContext(), "Collection empty", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getApplicationContext(), "Collection empty", Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(getApplicationContext(), "Chats asigned", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getApplicationContext(), "Chats asigned", Toast.LENGTH_SHORT).show();
                     chats.removeAll(chats);
                     chats.addAll(document.getChats());
                     chatAdapter.notifyDataSetChanged();

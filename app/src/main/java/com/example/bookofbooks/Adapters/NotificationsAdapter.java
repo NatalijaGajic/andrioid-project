@@ -1,5 +1,6 @@
 package com.example.bookofbooks.Adapters;
 
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,8 +41,16 @@ public class NotificationsAdapter extends FirestorePagingAdapter<Notification, N
     @Override
     protected void onBindViewHolder(@NonNull NotificationHolder holder, int position, @NonNull final Notification model) {
         holder.postTitle.setText(model.getTitle());
-        Integer count = model.getUsersFollowing();
-        String string = model.getUsername()+" and "+ count.toString()+ " others are following";
+        holder.postTitle.setEllipsize(TextUtils.TruncateAt.END);
+        holder.postTitle.setLines(1);
+        holder.postTitle.setMaxLines(1);
+        Integer count = model.getUsersFollowing()-1;
+        String string;
+        if (count == 0){
+            string = model.getUsername()+" is following";
+        }else{
+             string = model.getUsername()+" and "+ count.toString()+ " others are following";
+        }
         holder.userName.setText(string);
         holder.message.setText("New user is following this post");
         holder.dateText.setText(model.getDate());

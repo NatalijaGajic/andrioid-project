@@ -150,7 +150,7 @@ public class MessageActivity extends AppCompatActivity {
     private void clearNewMessagesForUser() {
         if(extraOtherUserId.equals(UsersInfo.getUserID())){
             //salje otherUser, brisu se newMessages u chats kolekciji
-            Toast.makeText(getApplicationContext(), "Brise new u chats", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(getApplicationContext(), "Brise new u chats", Toast.LENGTH_SHORT).show();
             firebaseFirestore.collection("chats").document(extraOtherUserId)
                     .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -172,7 +172,7 @@ public class MessageActivity extends AppCompatActivity {
             });
         }else {
             //salje postUser, brisu se newMessages u postChats kolekciji
-            Toast.makeText(getApplicationContext(), "Brise new u postchats", Toast.LENGTH_SHORT).show();
+           // Toast.makeText(getApplicationContext(), "Brise new u postchats", Toast.LENGTH_SHORT).show();
             firebaseFirestore.collection("postChats").document(UsersInfo.getUserID())
                     .get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
                 @Override
@@ -228,7 +228,7 @@ public class MessageActivity extends AppCompatActivity {
             //ne salje se poruka
         } else {
             final Message message;
-            //proveravamo od koga je, kome poruka
+            //proveravamo od koga je, kome poruka(da li je poruka onoga ciji je post)
             if(UsersInfo.getUserID().equals(extraPostUserID)){
                 message = new Message(UsersInfo.getUserID(), extraOtherUserId, text.trim());
             } else {

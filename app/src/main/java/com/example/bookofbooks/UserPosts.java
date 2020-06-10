@@ -141,7 +141,7 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
     public void onItemClick(Post post, int position) {
         String id = post.getPostID();
         Log.d("ON ITEM CLICK", "clicked item "+ id);
-        Toast.makeText(getActivity().getApplicationContext(), "clicked item", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(getActivity().getApplicationContext(), "clicked item", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(getContext(), PostDetails.class);
         intent.putExtra("postID", id);
         startActivity(intent);
@@ -152,7 +152,7 @@ public class UserPosts extends Fragment implements UsersPostClickListener, Users
         String id = post.getPostID();
         Intent intent = new Intent(getContext(), CreatePost.class);
         intent.putExtra("postID", id);
-        Toast.makeText(getContext(), "Clicked edit "+id, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "Clicked edit "+id, Toast.LENGTH_SHORT).show();
         startActivity(intent);
     }
 

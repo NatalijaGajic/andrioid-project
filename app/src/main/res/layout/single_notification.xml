@@ -24,6 +24,11 @@
             app:layout_constraintStart_toEndOf="@id/notification_image"
             app:layout_constraintTop_toTopOf="@id/notification_image"
             android:layout_marginLeft="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:ems="8"
+            android:lines="1"
+            app:layout_constraintRight_toLeftOf="@+id/notification_date"
             android:textSize="20sp"/>
 
         <TextView

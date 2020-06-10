@@ -69,7 +69,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
         notificationsImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getApplicationContext(), "Clicked notifications", Toast.LENGTH_SHORT).show();
+              //  Toast.makeText(getApplicationContext(), "Clicked notifications", Toast.LENGTH_SHORT).show();
                 showNotifications();
             }
         });
@@ -80,7 +80,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
             @Override
             public void onDrawerStateChanged(int newState) {
                 if((newState == DrawerLayout.STATE_SETTLING || newState == DrawerLayout.STATE_DRAGGING) && drawerLayout.isDrawerOpen(GravityCompat.START)==false){
-                    Toast.makeText(getApplicationContext(), "Opening", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "Opening", Toast.LENGTH_SHORT).show();
                     invalidateOptionsMenu();
                     onPrepareOptionsMenu(null);
                 }
@@ -213,6 +213,7 @@ public class HomePage extends AppCompatActivity implements NavigationView.OnNavi
                         ChatCollection chatCollection = documentSnapshot.toObject(ChatCollection.class);
                         if(chatCollection!=null){
                             Integer messages = (Integer) chatCollection.getNewMessages();
+                            //Toast.makeText(getApplicationContext(), messages.toString(), Toast.LENGTH_SHORT).show();
                             if(messages>0){
                                 myChats.setTitle("Other chats "+"("+messages.toString()+")");
                             }else if(messages == 0){

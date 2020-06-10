@@ -155,7 +155,7 @@ public class HomePosts extends Fragment implements PostClickListener {
        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
            @Override
            public boolean onQueryTextSubmit(String query) {
-               Toast.makeText(getContext(),"text submitted", Toast.LENGTH_SHORT ).show();
+               //Toast.makeText(getContext(),"text submitted", Toast.LENGTH_SHORT ).show();
                searchPosts(query);
                return true;
            }
@@ -181,7 +181,7 @@ public class HomePosts extends Fragment implements PostClickListener {
                    @Override
                    public void onClick(DialogInterface dialog, int which) {
                        String country = autoCompleteTextView.getText().toString();
-                       Toast.makeText(getContext(),country, Toast.LENGTH_SHORT).show();
+                     //  Toast.makeText(getContext(),country, Toast.LENGTH_SHORT).show();
                        if(countries.indexOf(country)!=-1){
                            countryFilter.setText(country);
                            filterByCountry(country);
@@ -247,7 +247,7 @@ public class HomePosts extends Fragment implements PostClickListener {
                     .whereEqualTo("user.country", countryFilter.getText().toString());
         }
        // adapter.stopListening();
-        Toast.makeText(getContext(),search, Toast.LENGTH_SHORT).show();
+       // Toast.makeText(getContext(),search, Toast.LENGTH_SHORT).show();
 
 
         //RecyclerOption
@@ -289,7 +289,7 @@ public class HomePosts extends Fragment implements PostClickListener {
     public void onItemClick(DocumentSnapshot documentSnapshot, int position) {
         String id = documentSnapshot.getId();
         Log.d("ON ITEM CLICK", "clicked item "+ id);
-        Toast.makeText(getActivity().getApplicationContext(), "clicked item", Toast.LENGTH_SHORT).show();
+       // Toast.makeText(getActivity().getApplicationContext(), "clicked item", Toast.LENGTH_SHORT).show();
         Intent intent = new Intent(getContext(), PostDetails.class);
         intent.putExtra("postID", id);
         startActivity(intent);
